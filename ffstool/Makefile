@@ -4,7 +4,8 @@ CFLAGS	= -ggdb3 -c $(CSTRICT) -fno-stack-protector -I./ -I../  -DDEBUG
 
 OBJS = ffs.o\
 		ffstool.o\
-		fileblock.o
+		fileblock.o\
+		osdep.o
 
 all: $(OBJS)
 	$(CC) -o ffstool $(OBJS)
@@ -17,6 +18,9 @@ ffstool.o: ffstool.c ../fs/ffs.h
 
 fileblock.o: fileblock.c fileblock.h
 	$(CC) $(CFLAGS) -o fileblock.o fileblock.c
+
+osdep.o: osdep.c osdep.h
+	$(CC) $(CFLAGS) -o osdep.o osdep.c
 
 clean:
 	-rm *.o

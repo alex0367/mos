@@ -4,4 +4,5 @@
 
 block* create_fileblock();
 
+void delete_fileblock(block* b);
 #endif
