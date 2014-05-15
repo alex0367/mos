@@ -13,7 +13,14 @@ block* create_fileblock()
 
     ret->read = file_read;
     ret->write = file_write;
-    ret->aux = (void*)fopen("../ffs.img", "r+");
+#ifdef WIN32
+    ret->aux = (void*)fopen("../../ffs.img", "r+");
+#else
+	ret->aux = (void*)fopen("../ffs.img", "r+");
+#endif
+	fseek(ret->aux, 0, SEEK_END);
+	ret->sector_size = (ftell(ret->aux) - BLOCK_OFFSET) / BLOCK_SECTOR_SIZE;
+	fseek(ret->aux, 0, SEEK_SET);
 
     return ret;
 }
@@ -21,6 +28,7 @@ block* create_fileblock()
 void delete_fileblock(block* b)
 {
     fclose(b->aux);
+	free(b);
 }
 
 static int file_read(void* aux, unsigned sector, void* buf, unsigned len)
