@@ -1,6 +1,38 @@
 #include <osdep.h>
 
 #ifdef WIN32
+static unsigned quota = 0;
+static unsigned high_quota = 0;
+typedef struct _mm_block
+{
+	unsigned int len;
+	char buf[0];
+}mm_block;
+
+void* _kmalloc(unsigned size, char* function, int line)
+{
+	mm_block* ret = malloc(size + 4);
+	//printf("%s:%d alloc %d \n", function, line, size);
+	ret->len = size;
+	quota += size;
+	if (high_quota < quota)
+		high_quota = quota;
+
+	return ret->buf;
+}
+
+void _kfree(void* buf, char* function, int line)
+{
+	mm_block* b = (char*)buf - 4;
+	//printf("%s:%d free %d \n", function, line, b->len);
+	quota -= b->len;
+	free(b);
+}
+
+void print_quota()
+{
+	printf("quota %x, highest %x\n", quota, high_quota);
+}
 
 
 void sema_init(semaphore* lock, char * name, int init_state)
