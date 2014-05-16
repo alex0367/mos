@@ -20,8 +20,12 @@ void sema_trigger(semaphore* lock);
 
 void sema_reset(semaphore* lock);
 
-#define kmalloc malloc
-#define kfree free
+void* _kmalloc(unsigned size);
+void _kfree(void* buf);
+
+#define kmalloc(size) _kmalloc(size, __FUNCTION__, __LINE__)
+#define kfree(buf) _kfree(buf, __FUNCTION__, __LINE__)
+
 
 typedef struct _task_struct
 {
