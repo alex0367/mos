@@ -20,9 +20,25 @@ static void test_list()
 static void test_create()
 {
 	print_quota();
+	for (int i = 0; i < 10; i++){
+		char name[32];
+		sprintf(name, "/test%d", i);
+		fs_create(name, S_IRWXU | S_IRWXG | S_IRWXO);
+	}
 
-	fs_create("/home", S_IRWXU | S_IRWXG | S_IRWXO | S_IFDIR);
-	fs_create("/readme.txt", S_IRWXU | S_IRWXG | S_IRWXO );
+
+	print_quota();
+}
+
+static void test_delete()
+{
+	print_quota();
+	for (int i = 3; i < 5; i++){
+		char name[32];
+		sprintf(name, "/test%d", i);
+		fs_delete(name);
+	}
+
 
 	print_quota();
 }
@@ -55,6 +71,9 @@ int main (int argc, char *argv[])
 			break;
 		case 'c':
 			test_create();
+			break;
+		case 'd':
+			test_delete();
 			break;
 		case '\n':
 			break;
