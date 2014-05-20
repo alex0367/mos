@@ -5,4 +5,6 @@
 block* create_fileblock();
 
 void delete_fileblock(block* b);
+
+void format_partition();
 #endif

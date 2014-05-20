@@ -67,6 +67,18 @@ task_struct* CURRENT_TASK()
 	return task;
 }
 
+void printk(char* msg, ...)
+{
+	va_list ap;
+	char buf[256] = { 0 };
+
+	va_start(ap, msg);
+	wvsprintfA(buf, msg, ap);
+	va_end(ap);
+
+	OutputDebugStringA(buf);
+}
+
 #else
 
 
