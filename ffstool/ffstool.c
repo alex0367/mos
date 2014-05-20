@@ -92,7 +92,7 @@ int main (int argc, char *argv[])
 
 	vfs_init();
 	mount_init();
-
+	extern void report_cache();
 	printf("pleaes input cmd:\n");
 	while (c = getchar()){
 		if (c == 'q')
@@ -100,6 +100,7 @@ int main (int argc, char *argv[])
 
 		switch (c){
 		case 'f':
+			format_partition(b->aux);
 			ffs_format(b);
 			printf("format done\n");
 			break;
@@ -110,6 +111,7 @@ int main (int argc, char *argv[])
 			break;
 		case 'l':
 			test_list();
+			report_cache();
 			break;
 		case 'c':
 			test_create();
@@ -119,9 +121,11 @@ int main (int argc, char *argv[])
 			break;
 		case 'w':
 			test_write();
+			report_cache();
 			break;
 		case 'r':
 			test_read();
+			report_cache();
 			break;
 		case '\n':
 			break;
