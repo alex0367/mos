@@ -37,6 +37,7 @@ task_struct* CURRENT_TASK();
 #define MAX_FD 256
 #define UNIMPL 
 
+void printk(char* msg, ...);
 
 #else
 
