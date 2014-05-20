@@ -37,7 +37,10 @@ task_struct* CURRENT_TASK();
 #define MAX_FD 256
 #define UNIMPL 
 
+void printk(char* msg, ...);
 
+#define vmalloc(page_count) malloc(page_count*4096)
+#define vmfree(addr, page_count) free(addr)
 #else
 
 
