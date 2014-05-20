@@ -39,6 +39,8 @@ task_struct* CURRENT_TASK();
 
 void printk(char* msg, ...);
 
+#define vmalloc(page_count) malloc(page_count*4096)
+#define vmfree(addr, page_count) free(addr)
 #else
 
 
