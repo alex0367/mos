@@ -2,12 +2,15 @@
 #ifdef WIN32
 #include <windows.h>
 #include <osdep.h>
+#elif MACOS
+#include <osdep.h>
 #else
 #include <ps/ps.h>
 #include <ps/lock.h>
 #include <config.h>
 #include <lib/klib.h>
 #include <fs/mount.h>
+#include <int/timer.h>
 #endif
 
 static INODE fs_lookup_inode(char* path);
@@ -254,7 +257,7 @@ static INODE fs_get_dirent_node(INODE node, char* name)
 
 static INODE fs_lookup_inode(char* path)
 {
-    struct filesys_type* type = 0;
+    struct filesys_type* type = (void*)0;
 	INODE root;
 	char parent[256];
 	char* tmp;
@@ -398,23 +401,83 @@ static void test_stat(char* path)
 	printk("%s: is dir %d, size %d\n", path, S_ISDIR(s.st_mode), s.st_size);
 }
 
+static void test_write()
+{	
+	unsigned int fd = fs_open("/readme.txt");
+	char* buf = 0;
+	int i = 0;
+	time_t time;
+	timer_current(&time);
+	printk("%d: write begin\n", time.seconds*60+time.milliseconds);
+	if (fd == MAX_FD)
+		return;
+
+	buf = kmalloc(1024);
+	memset(buf, 'd', 1024);
+	for (i = 0; i < (1024); i++){
+		if (i % 100 == 0) {
+			printk("write index %d\n", i);
+			#ifdef DEBUG_FFS
+			extern void report_time();
+			extern void report_hdd_time();
+			report_time();
+			report_hdd_time();
+			#endif
+		}
+		fs_write(fd, i*1024, buf, 1024);
+		
+	}
+	kfree(buf);
+	fs_close(fd);
+
+	timer_current(&time);
+	printk("%d: write end\n", time.seconds*60+time.milliseconds);
+}
+
+static void test_read()
+{	
+	unsigned int fd = fs_open("/readme.txt");
+	char* buf = 0;
+	int i = 0;
+	time_t time;
+	timer_current(&time);
+	printk("%d: read  begin\n", time.seconds*60+time.milliseconds);
+	if (fd == MAX_FD)
+		return;
+
+	buf = kmalloc(1024);
+	memset(buf, 0, 1024);
+	for (i = 0; i < (4*1024); i++){
+		if (i % 500 == 0) {
+			printk("read  index %d\n", i);
+			#ifdef DEBUG_FFS
+			extern void report_time();
+			extern void report_hdd_time();
+			report_time();
+			report_hdd_time();
+			#endif
+		}
+		memset(buf, 0, 1024);
+		fs_read(fd, i*1024, buf, 1024);
+		
+	}
+	kfree(buf);
+	fs_close(fd);
+
+	timer_current(&time);
+	printk("%d: write end\n", time.seconds*60+time.milliseconds);
+}
+
 void test_ns()
 {
 	unsigned fd;
 	char text[32];
 	klogquota();
+
 	printk("test_ns\n");
+	//list_dir("/", 0);
 
-	fd = fs_open("/readme.txt");
-	printk("fs_open %d\n", fd);
-	fs_read(fd, 0, text, 31);
-	printk("file context: %s\n", text);
-	fs_close(fd);
-
-	klogquota();
-	list_dir("/", 1);
-
-	test_stat("/bin/run");
+	test_read();
 	klogquota();
 }
 #endif
