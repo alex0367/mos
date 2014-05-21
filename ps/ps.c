@@ -299,12 +299,11 @@ void ps_cleanup_dying_task()
             vm_free(task->user.page_dir, 1);
         }
 
-        entry = RemoveHeadList(&(task->user.page_table_list));
-        while (entry) {
+        while (!IsListEmpty(&(task->user.page_table_list))) {
+            entry = RemoveHeadList(&(task->user.page_table_list));
             node = CONTAINER_OF(entry, page_table_list_entry, list);
             mm_del_dynamic_map(node->addr);
             kfree(node);
-            entry = RemoveHeadList(&(task->user.page_table_list));
         }
 
         vm_free((unsigned int)task, KERNEL_TASK_SIZE);
@@ -317,7 +316,9 @@ static void _task_sched(PLIST_ENTRY wait_list) {
     task_struct *task = 0;
     task_struct *current = 0;
     int i = 0;
+    int intr_enabled = int_is_intr_enabled();
 
+    int_intr_disable();
     current = CURRENT_TASK();
     current->is_switching = 1;
     do {
@@ -334,6 +335,7 @@ static void _task_sched(PLIST_ENTRY wait_list) {
 
     if (!task) {
         task = current;
+        goto SELF;
     }
     task->status = ps_running; 
 
@@ -363,6 +365,7 @@ static void _task_sched(PLIST_ENTRY wait_list) {
     __asm__("movl %eax, %esp");
     RESTORE_ALL();
     __asm__("NEXT: nop");
+
     current = CURRENT_TASK();
     reset_tss(current);
     if (current->user.page_dir) {
@@ -376,6 +379,11 @@ static void _task_sched(PLIST_ENTRY wait_list) {
             in_use[i] = per_ps[i];
         }
     }
+ SELF:
+     if (intr_enabled) {
+         int_intr_enable();
+     }
+     
     current ->is_switching = 0;
     return;
 }

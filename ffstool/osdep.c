@@ -1,6 +1,6 @@
 #include <osdep.h>
 
-#ifdef WIN32
+#if defined WIN32 ||  MACOS
 static unsigned quota = 0;
 static unsigned high_quota = 0;
 typedef struct _mm_block
@@ -9,7 +9,7 @@ typedef struct _mm_block
 	char buf[0];
 }mm_block;
 
-void* _kmalloc(unsigned size, char* function, int line)
+void* _kmalloc(unsigned size, const char* function, int line)
 {
 	mm_block* ret = malloc(size + 4);
 	//printf("%s:%d alloc %d \n", function, line, size);
@@ -21,7 +21,7 @@ void* _kmalloc(unsigned size, char* function, int line)
 	return ret->buf;
 }
 
-void _kfree(void* buf, char* function, int line)
+void _kfree(void* buf, const char* function, int line)
 {
 	mm_block* b = (char*)buf - 4;
 	//printf("%s:%d free %d \n", function, line, b->len);
@@ -34,7 +34,7 @@ void print_quota()
 	printf("quota %x, highest %x\n", quota, high_quota);
 }
 
-
+#ifdef WIN32
 void sema_init(semaphore* lock, char * name, int init_state)
 {
 	lock->event = CreateEventA(NULL, TRUE, (init_state == 0), name);
@@ -54,6 +54,34 @@ void sema_reset(semaphore* lock)
 {
 	ResetEvent(lock->event);
 }
+#elif MACOS
+void sema_init(semaphore* lock, char * name, int init_state)
+{
+	// do nothing!
+}
+
+void sema_wait(semaphore* lock)
+{
+	// do nothing!
+}
+
+void sema_trigger(semaphore* lock)
+{
+	// do nothing!
+}
+
+void sema_reset(semaphore* lock)
+{
+	// do nothing!
+}
+
+unsigned GetCurrentTime()
+{
+    time_t now = time(NULL);
+    return now;
+}
+
+#endif
 
 static task_struct* task = NULL;
 task_struct* CURRENT_TASK()
@@ -67,6 +95,7 @@ task_struct* CURRENT_TASK()
 	return task;
 }
 
+#ifdef WIN32
 void printk(char* msg, ...)
 {
 	va_list ap;
@@ -78,6 +107,9 @@ void printk(char* msg, ...)
 
 	OutputDebugStringA(buf);
 }
+#elif MACOS
+#define printk printf
+#endif
 
 #else
 

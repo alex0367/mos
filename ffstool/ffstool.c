@@ -6,7 +6,6 @@
 
 static void test_list()
 {
-	print_quota();
 	DIR dir = fs_opendir("/");
 	char name[32];
 	int mode;
@@ -15,21 +14,19 @@ static void test_list()
 		printf("%x: %s\n", mode, name);
 	}
 	fs_closedir(dir);
-	print_quota();
 }
 
 static void test_create()
 {
-	print_quota();
+	int i = 0;
 	fs_create("/readme.txt", S_IRWXU | S_IRWXG | S_IRWXO);
-	for (int i = 0; i < 10; i++){
+	for (i = 0; i < 10; i++){
 		char name[32];
 		sprintf(name, "/test%d", i);
 		fs_create(name, S_IRWXU | S_IRWXG | S_IRWXO);
 	}
 
 
-	print_quota();
 }
 
 static void test_read()
@@ -74,8 +71,9 @@ static void test_write()
 
 static void test_delete()
 {
+	int i = 0;
 	print_quota();
-	for (int i = 3; i < 5; i++){
+	for (i = 3; i < 5; i++){
 		char name[32];
 		sprintf(name, "/test%d", i);
 		fs_delete(name);
@@ -85,13 +83,9 @@ static void test_delete()
 	print_quota();
 }
 
-int main (int argc, char *argv[])
+static void run_cmd(block* b)
 {
-    block* b = create_fileblock();
 	char c;
-
-	vfs_init();
-	mount_init();
 	extern void report_cache();
 	printf("pleaes input cmd:\n");
 	while (c = getchar()){
@@ -110,11 +104,15 @@ int main (int argc, char *argv[])
 			printf("attach to file system done\n");
 			break;
 		case 'l':
+			print_quota();
 			test_list();
+			print_quota();
 			report_cache();
 			break;
 		case 'c':
+			print_quota();
 			test_create();
+			print_quota();
 			break;
 		case 'd':
 			test_delete();
@@ -132,6 +130,29 @@ int main (int argc, char *argv[])
 		default:
 			printf("unknow command %c\n", c);
 			break;
+		}
+	}
+
+
+}
+
+int main (int argc, char *argv[])
+{
+    block* b = create_fileblock();
+
+	vfs_init();
+	mount_init();
+
+	if (argc == 1) {
+		run_cmd(b);
+	}else{
+		if (!strcmp(argv[1], "format")) {
+			format_partition(b->aux);
+			ffs_format(b);
+			ffs_attach(b);
+			vfs_trying_to_mount_root();
+			test_create();
+			test_write();
 		}
 	}
 
