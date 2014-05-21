@@ -152,6 +152,7 @@ int main (int argc, char *argv[])
 			ffs_attach(b);
 			vfs_trying_to_mount_root();
 			test_create();
+			test_write();
 		}
 	}
 
