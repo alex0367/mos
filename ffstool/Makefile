@@ -1,6 +1,11 @@
 CC = gcc
 CSTRICT	= -Werror=return-type -Werror=uninitialized
-CFLAGS	= -m32 -arch i386 -ggdb3  -c $(CSTRICT) -fno-stack-protector -I./ -I../  -DMACOS=1 -DDEBUG
+ifeq ($(shell uname),Linux)
+ARCH = -m32
+else
+ARCH = -m32 -arch i386
+endif
+CFLAGS	= $(ARCH) -ggdb3  -c $(CSTRICT) -fno-stack-protector -I./ -I../  -DMACOS=1 -DDEBUG
 
 OBJS = ffs.o\
 		ffstool.o\
@@ -12,7 +17,7 @@ OBJS = ffs.o\
 		list.o
 
 all: $(OBJS)
-	$(CC) -m32 -arch i386 -o ffstool $(OBJS)
+	$(CC) $(ARCH) -o ffstool $(OBJS)
 	-mkdir Debug
 	-cp ffstool Debug/
 
