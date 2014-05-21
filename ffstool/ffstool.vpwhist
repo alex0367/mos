@@ -1,0 +1,29 @@
+[Global]
+CurrentProject=ffstool.vpj
+[ProjectDates]
+ffstool.vpj=20140521025303978
+[TreeExpansion2]
+-@ ffstool.vpj
+  + Bitmaps
+  + Header Files
+  + Other Files
+  + Resource Files
+  - Source Files
+scroll:0
+[State]
+SCREEN: 1600 900 200 61 1201 739 0 0 M 0 0 0 0 1168 574 0
+CWD: ..\ffstool
+BUFFER: BN="ffstool.c"
+BI: MA=1 74 1  TABS=1 5  WWS=1 IWT=1 ST=0 IN=2 BW=0 US=32000 RO=0 SE=1 SN=0 BIN=0 MN=C/C++	HM=0 MF=53543008 TL=0 MLL=0 ASE=0 LNL=1 LCF=6 CAPS=0 E=0 ESBU2=1 CL="" SC="" SCE= SCU=
+VIEW: LN=.2502 CL=1 LE=0 CX=1 CY=18 WI=5 BI=13 HT=0 HN=0 HF=0 HC=4
+WINDOW: 0 0 1169 575 0 0 M  WF=0 WT=2 ",,,"
+BUFFER: BN="ffstool.c"
+VIEW: LN=.1833 CL=27 LE=0 CX=31 CY=12 WI=118 BI=13 HT=0 HN=0 HF=0 HC=4
+FILEHIST: 1
+ffstool.c
+TBCLASS: 0 0
+DEBUG: 0 0 0 0 3 0 gdb
+printf
+strcpy
+std::*
+DEBUG2: 0
