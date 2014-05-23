@@ -114,7 +114,7 @@ static void run_cmd(block* b)
 			break;
 		case 'l':
 			print_quota();
-			test_list("/");
+			test_list("/bin");
 			print_quota();
 			report_cache();
 			break;

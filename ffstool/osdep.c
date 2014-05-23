@@ -54,6 +54,50 @@ void sema_reset(semaphore* lock)
 {
 	ResetEvent(lock->event);
 }
+
+void* mmap(void* a, unsigned len, unsigned prot, unsigned flag, unsigned fd, unsigned pg_offset)
+{
+	unsigned addr = (unsigned)a;
+	unsigned protect = 0;
+	HANDLE h = fd;
+	DWORD readed = 0;
+	MEMORY_BASIC_INFORMATION info;
+
+
+	if ( (prot & PROT_EXEC) ){
+		if ((prot & PROT_READ) && (prot & PROT_WRITE))
+			protect = PAGE_EXECUTE_READWRITE;
+		else if (prot & PROT_READ)
+			protect = PAGE_EXECUTE_READ;
+	}
+	else if ( (prot & PROT_READ) && (prot & PROT_WRITE)){
+		protect = PAGE_READWRITE;
+	}
+	else if (((prot & PROT_READ) && !(prot & PROT_WRITE))){
+		protect = PAGE_READONLY;
+	}
+	else{
+		protect = PAGE_NOACCESS;
+	}
+	addr = addr & PAGE_SIZE_MASK;
+	VirtualQuery(addr, &info, len);
+	VirtualAlloc((void*)addr, len, MEM_RESERVE, protect);
+	VirtualAlloc((void*)addr, len, MEM_COMMIT, protect);
+	if (!addr)
+	{
+		DWORD err = GetLastError();
+		return 0;
+	}
+	extern unsigned fs_read(unsigned fd, unsigned offset, void* buf, unsigned len);
+	fs_read(fd, pg_offset, addr, len);
+	return addr;
+}
+
+int munmap(void* addr, unsigned len)
+{
+	return ( VirtualFree(addr, len, MEM_DECOMMIT) == TRUE );
+}
+
 #elif MACOS
 void sema_init(semaphore* lock, char * name, int init_state)
 {
