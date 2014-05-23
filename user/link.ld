@@ -5,7 +5,7 @@
    kernel image. */
 SECTIONS
 {
-	. = 0x08040000;
+	. = 0x08048000;
 
 	/* First put the multiboot header, as it is required to be put very early
 	   early in the image or the bootloader won't recognize the file format.
