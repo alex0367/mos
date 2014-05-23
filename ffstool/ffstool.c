@@ -1,17 +1,26 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <fileblock.h>
 #include <fs/ffs.h>
 #include <fs/namespace.h>
 #include <osdep.h>
 
-static void test_list()
+static void test_list(char* path)
 {
-	DIR dir = fs_opendir("/");
+	DIR dir = fs_opendir(path);
 	char name[32];
 	int mode;
 	while (fs_readdir(dir, name, &mode)){
+		char sub[32];
+		struct stat s;
 
-		printf("%x: %s\n", mode, name);
+		strcpy(sub, path);
+		if (strlen(path) != 1) {
+			strcat(sub, "/");
+		}
+		strcat(sub, name);
+		fs_stat(sub, &s);
+		printf("%x: %s, len %d\n", mode, name, s.st_size);
 	}
 	fs_closedir(dir);
 }
@@ -105,7 +114,7 @@ static void run_cmd(block* b)
 			break;
 		case 'l':
 			print_quota();
-			test_list();
+			test_list("/");
 			print_quota();
 			report_cache();
 			break;
@@ -136,6 +145,35 @@ static void run_cmd(block* b)
 
 }
 
+static void copy_user_program(char *name)
+{
+	unsigned ffs_fd;
+	FILE* local_f;
+	unsigned len;
+	char* buf;
+	char ffs_name[64];
+	char local_name[64];
+
+	strcpy(ffs_name, "/bin/");
+	strcat(ffs_name, name);
+	strcpy(local_name, "../user/");
+	strcat(local_name, name);
+	fs_create("/bin", S_IRWXU | S_IRWXG | S_IRWXO | S_IFDIR);
+	fs_create(ffs_name,  S_IRWXU | S_IRWXG | S_IRWXO);
+	ffs_fd = fs_open(ffs_name);
+	local_f = fopen(local_name, "r");
+	fseek(local_f, 0, SEEK_END);
+	len = ftell(local_f);
+	fseek(local_f, 0, SEEK_SET);
+	buf = malloc(len);
+	fread(buf, len, 1, local_f);
+	fs_write(ffs_fd, 0, buf, len);
+	fs_close(ffs_fd);
+	fclose(local_f);
+
+	free(buf);
+}
+
 int main (int argc, char *argv[])
 {
     block* b = create_fileblock();
@@ -151,9 +189,11 @@ int main (int argc, char *argv[])
 			ffs_format(b);
 			ffs_attach(b);
 			vfs_trying_to_mount_root();
-			test_create();
-			test_write();
+			copy_user_program("run");
+			test_list("/bin");
+
 		}
+
 	}
 
 	delete_fileblock(b);
