@@ -406,22 +406,32 @@ static void test_write()
 	unsigned int fd = fs_open("/readme.txt");
 	char* buf = 0;
 	int i = 0;
-	time_t time;
-	timer_current(&time);
-	printk("%d: write begin\n", time.seconds*60+time.milliseconds);
+	time_t now;
+	unsigned t;
+	timer_current(&now);
+	printk("%d: write begin\n", now.seconds*60+now.milliseconds);
 	if (fd == MAX_FD)
 		return;
 
 	buf = kmalloc(1024);
 	memset(buf, 'd', 1024);
-	for (i = 0; i < (1024); i++){
+	t = time(0);
+	for (i = 0; i < (4*1024); i++){
 		if (i % 100 == 0) {
-			printk("write index %d\n", i);
+			unsigned span = time(t);
+			unsigned speed = 0;
+			if (span) {
+				speed=((100*1024) / span) * 1000;
+			}
+			t = t+span;
+			printk("write index %d, speed %h/s\n", i, speed);
 			#ifdef DEBUG_FFS
 			extern void report_time();
 			extern void report_hdd_time();
+			extern void report_cache();
 			report_time();
 			report_hdd_time();
+			report_cache();
 			#endif
 		}
 		fs_write(fd, i*1024, buf, 1024);
@@ -430,8 +440,8 @@ static void test_write()
 	kfree(buf);
 	fs_close(fd);
 
-	timer_current(&time);
-	printk("%d: write end\n", time.seconds*60+time.milliseconds);
+	timer_current(&now);
+	printk("%d: write end\n", now.seconds*60+now.milliseconds);
 }
 
 static void test_read()
@@ -439,33 +449,47 @@ static void test_read()
 	unsigned int fd = fs_open("/readme.txt");
 	char* buf = 0;
 	int i = 0;
-	time_t time;
-	timer_current(&time);
-	printk("%d: read  begin\n", time.seconds*60+time.milliseconds);
+	time_t now;
+	unsigned t;
+	timer_current(&now);
+	printk("%d: read  begin\n", now.seconds*60+now.milliseconds);
 	if (fd == MAX_FD)
 		return;
 
 	buf = kmalloc(1024);
 	memset(buf, 0, 1024);
-	for (i = 0; i < (4*1024); i++){
-		if (i % 500 == 0) {
-			printk("read  index %d\n", i);
-			#ifdef DEBUG_FFS
-			extern void report_time();
-			extern void report_hdd_time();
-			report_time();
-			report_hdd_time();
-			#endif
+	t = time(0);
+	while (1) {
+		printk("");
+		klogquota();
+		for (i = 0; i < (4*1024); i++){
+			if (i % 100 == 0) {
+				unsigned span = time(t);
+				unsigned speed = 0;
+				if (span) {
+					speed=((100*1024) / span) * 1000;
+				}
+				t = t+span;
+				printk("read index %d, speed %h/s\n", i, speed);
+				#ifdef DEBUG_FFS
+				extern void report_time();
+				extern void report_hdd_time();
+				extern void report_cache();
+				report_time();
+				report_hdd_time();
+				report_cache();
+				#endif
+			}
+			memset(buf, 0, 1024);
+			fs_read(fd, i*1024, buf, 1024);
+			
 		}
-		memset(buf, 0, 1024);
-		fs_read(fd, i*1024, buf, 1024);
-		
 	}
 	kfree(buf);
 	fs_close(fd);
 
-	timer_current(&time);
-	printk("%d: write end\n", time.seconds*60+time.milliseconds);
+	timer_current(&now);
+	printk("%d: write end\n", now.seconds*60+now.milliseconds);
 }
 
 void test_ns()
@@ -477,7 +501,7 @@ void test_ns()
 	printk("test_ns\n");
 	//list_dir("/", 0);
 
-	test_read();
+	test_write();
 	klogquota();
 }
 #endif

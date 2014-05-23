@@ -1,5 +1,10 @@
+#include <syscall.h>
 
 void main()
 {
-	for(;;);
+	int ret;
+	char c[1];
+	while(read(0, c, 1) == 1){
+		write(1, c, 1);
+	}
 }
