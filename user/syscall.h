@@ -1,10 +1,11 @@
 #ifndef _SYSCALL_H_
 #define _SYSCALL_H_
 #include <syscall/unistd.h>
+#include <config.h>
 
 #define SYSCALL0(no) \
 	__asm__("movl %0, %%eax" : : "i"(no));\
-	__asm__("int $0x80");\
+	__asm__("int %0" : : "i"(SYSCALL_INT_NO));\
 
 #define SYSCALL1(no, arg0) \
 	__asm__("movl %0, %%ebx" : : "m"(arg0));\
@@ -52,4 +53,5 @@ DEFINE_SYSCALL1(waitpid, unsigned, fd)
 DEFINE_SYSCALL2(creat, const char*, path, unsigned, mode)
 DEFINE_SYSCALL3(execve,const char*, path, char** const, argv, char** const, env)
 DEFINE_SYSCALL1(brk, void*, addr)
+DEFINE_SYSCALL0(getpid);
 #endif
