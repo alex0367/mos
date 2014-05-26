@@ -38,7 +38,7 @@ int sys_execve(const char* file, char** argv, char** envp)
 
     eip = elf_map(file_name);
     if (!eip) {
-        printk("fatal error: no idle task found!\n");
+        printk("fatal error: file %s not found!\n", file);
         asm("hlt");
     }
 

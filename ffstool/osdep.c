@@ -1,5 +1,9 @@
 #include <osdep.h>
-
+#ifdef WIN32
+#elif MACOS
+#include <sys/types.h>
+#include <dirent.h>
+#endif
 #if defined WIN32 ||  MACOS
 static unsigned quota = 0;
 static unsigned high_quota = 0;
@@ -32,6 +36,28 @@ void _kfree(void* buf, const char* function, int line)
 void print_quota()
 {
 	printf("quota %x, highest %x\n", quota, high_quota);
+}
+
+void enum_dir(char* name, enum_dir_callback fn)
+{
+	DIR* d = opendir(name);
+	struct dirent * entry;
+	
+	if(!d || !fn)
+	  return;
+	
+	while ( (entry = readdir(d)) ){
+		if (!strcmp(entry->d_name, "."))
+		  continue;
+		if (!strcmp(entry->d_name, ".."))
+		  continue;
+
+
+		fn(entry->d_name);
+	}
+	
+	closedir(d);
+
 }
 
 #ifdef WIN32

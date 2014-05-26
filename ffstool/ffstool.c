@@ -156,7 +156,7 @@ static void copy_user_program(char *name)
 
 	strcpy(ffs_name, "/bin/");
 	strcat(ffs_name, name);
-	strcpy(local_name, "../user/");
+	strcpy(local_name, "../user/bin/");
 	strcat(local_name, name);
 	fs_create("/bin", S_IRWXU | S_IRWXG | S_IRWXO | S_IFDIR);
 	fs_create(ffs_name,  S_IRWXU | S_IRWXG | S_IRWXO);
@@ -174,6 +174,12 @@ static void copy_user_program(char *name)
 	free(buf);
 }
 
+static void user_program_callback(char* name)
+{
+	printf("copy %s\n", name);
+	copy_user_program(name);
+}
+
 int main (int argc, char *argv[])
 {
     block* b = create_fileblock();
@@ -189,8 +195,9 @@ int main (int argc, char *argv[])
 			ffs_format(b);
 			ffs_attach(b);
 			vfs_trying_to_mount_root();
-			copy_user_program("run");
-			copy_user_program("test");
+			{
+				enum_dir("../user/bin", user_program_callback);
+			}
 			test_list("/bin");
 
 		}
