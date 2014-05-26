@@ -6,11 +6,19 @@ void main()
 	int pid = -1;
 	int psid = -1;
 	char msg[] = "ps[9]: hello, world from user land\n";
-	char msg1[] = "return val 1\n";
+
+	psid = fork();
+	if (psid){ // parent
+	
+	}else{ // child
+		execve("/bin/test", 0, 0);		
+	}
+	/*char msg1[] = "return val 1\n";
 	while(i < 3){
 		psid = fork();
 		i++;	
 	}
+	*/
 	//write(1, "return\n",7);
 	//while(1); 
 	/*if (psid){ // parent

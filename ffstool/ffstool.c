@@ -190,6 +190,7 @@ int main (int argc, char *argv[])
 			ffs_attach(b);
 			vfs_trying_to_mount_root();
 			copy_user_program("run");
+			copy_user_program("test");
 			test_list("/bin");
 
 		}

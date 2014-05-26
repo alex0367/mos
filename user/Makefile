@@ -10,13 +10,21 @@ else
 endif
 
 CSTRICT	= -Werror=uninitialized
-CFLAGS	= -g -m32 -c $(CSTRICT) -fno-stack-protector -fno-builtin -I./ -I../
+CFLAGS	= -g -c -m32 $(CSTRICT) -fno-stack-protector -fno-builtin -I./ -I../
 ASFLAGS	= -f elf32
 LDFILE	= -m elf_i386 -T link.ld 
 LDFLAGS	= $(LDFILE)
 TARGET	= run
 OBJS	= run.o \
 		  syscall.o
+
+all: run test
+
+test: test.o syscall.o
+	$(LD) $(LDFLAGS) -o test test.o syscall.o
+
+test.o: test.c
+	 $(CC) $(CFLAGS) -o test.o test.c
 
 run: $(OBJS)
 	$(LD) $(LDFLAGS) -o $(TARGET) $(OBJS)
@@ -30,3 +38,4 @@ syscall.o: syscall.c syscall.h ../syscall/unistd.h
 clean:
 	-rm *.o
 	-rm run
+	-rm test

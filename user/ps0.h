@@ -6,12 +6,7 @@
 #define FLAG_IF   0x00000200    /* Interrupt Flag. */
 
 
-#define _USER \
-    __attribute__((section(".user")))
 
-#define _USERDATA \
-    __attribute__((section(".userdata")))
-
-_USER void ps_first_process_run();
+int sys_execve(const char* file, char** argv, char** envp);
 
 #endif
