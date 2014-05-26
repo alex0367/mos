@@ -15,7 +15,8 @@ ASFLAGS	= -f elf32
 LDFILE	= -m elf_i386 -T link.ld 
 LDFLAGS	= $(LDFILE)
 TARGET	= run
-OBJS	= run.o \
+OBJS	= run.o
+LIBS	= lib.o \
 		  syscall.o
 
 all: folder run sh
@@ -23,20 +24,25 @@ all: folder run sh
 folder:
 	-mkdir bin
 
-sh: sh.o syscall.o
-	$(LD) $(LDFLAGS) -o bin/sh sh.o syscall.o
+sh: sh.o $(LIBS)
+	$(LD) $(LDFLAGS) -o sh.dbg sh.o $(LIBS)
+	$(LD) $(LDFLAGS) -s -o bin/sh sh.o $(LIBS)
 
 sh.o: sh.c syscall.h
 	 $(CC) $(CFLAGS) -o sh.o sh.c
 
-run: $(OBJS)
-	$(LD) $(LDFLAGS) -o bin/$(TARGET) $(OBJS)
+run: $(OBJS) $(LIBS)
+	$(LD) $(LDFLAGS) -o $(TARGET).dbg $(OBJS) $(LIBS)
+	$(LD) $(LDFLAGS) -s -o bin/$(TARGET) $(OBJS) $(LIBS)
 
 run.o: run.c run.h
 	$(CC) $(CFLAGS) -o run.o run.c
 
 syscall.o: syscall.c syscall.h ../syscall/unistd.h
 	$(CC) $(CFLAGS) -o syscall.o syscall.c
+
+lib.o: ../lib/klib.c ../lib/klib.c
+	$(CC) $(CFLAGS) -o lib.o ../lib/klib.c
 
 clean:
 	-rm *.o

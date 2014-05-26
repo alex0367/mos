@@ -35,7 +35,6 @@ int sys_execve(const char* file, char** argv, char** envp)
     strcpy(file_name, file);
 
     cleanup();
-
     eip = elf_map(file_name);
     if (!eip) {
         printk("fatal error: file %s not found!\n", file);

@@ -34,5 +34,7 @@ void main()
 	pid = getpid();
 	msg[3] = pid+'0';
 	write(1, msg, sizeof(msg)-1);
-	while(1);
+	while(1){
+        sched_yield();
+    }
 }

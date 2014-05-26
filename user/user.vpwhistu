@@ -1,0 +1,28 @@
+[Global]
+CurrentProject=user.vpj
+[ActiveConfig]
+user.vpj=Release
+[TreeExpansion2]
+-@ user.vpj
+  - Source Files
+  - Header Files
+  - Resource Files
+  + Bitmaps
+  - Other Files
+scroll:0
+[State]
+SCREEN: 1440 900 98 84 1204 774 0 0 M 0 0 0 0 1006 571 0
+CWD: ../user
+FILEHIST: 9
+../../pintos_mac/filesys/inode.c
+../../pintos_mac/filesys/inode.h
+../../pintos_mac/filesys/fsutil.c
+../../pintos_mac/filesys/filesys.c
+../../pintos_mac/lib/kernel/bitmap.c
+../../pintos_mac/tests/userprog/boundary.c
+../../pintos_mac/lib/round.h
+syscall.h
+run.c
+TBCLASS: 0 0
+[ProjectDates]
+user.vpj=20140526143410000

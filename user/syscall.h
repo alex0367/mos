@@ -54,4 +54,6 @@ DEFINE_SYSCALL2(creat, const char*, path, unsigned, mode)
 DEFINE_SYSCALL3(execve,const char*, path, char** const, argv, char** const, env)
 DEFINE_SYSCALL1(brk, void*, addr)
 DEFINE_SYSCALL0(getpid);
+DEFINE_SYSCALL1(uname, struct utsname*, utname);
+DEFINE_SYSCALL0(sched_yield);
 #endif
