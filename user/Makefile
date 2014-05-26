@@ -18,16 +18,19 @@ TARGET	= run
 OBJS	= run.o \
 		  syscall.o
 
-all: run test
+all: folder run sh
 
-test: test.o syscall.o
-	$(LD) $(LDFLAGS) -o test test.o syscall.o
+folder:
+	-mkdir bin
 
-test.o: test.c
-	 $(CC) $(CFLAGS) -o test.o test.c
+sh: sh.o syscall.o
+	$(LD) $(LDFLAGS) -o bin/sh sh.o syscall.o
+
+sh.o: sh.c syscall.h
+	 $(CC) $(CFLAGS) -o sh.o sh.c
 
 run: $(OBJS)
-	$(LD) $(LDFLAGS) -o $(TARGET) $(OBJS)
+	$(LD) $(LDFLAGS) -o bin/$(TARGET) $(OBJS)
 
 run.o: run.c run.h
 	$(CC) $(CFLAGS) -o run.o run.c
@@ -37,5 +40,4 @@ syscall.o: syscall.c syscall.h ../syscall/unistd.h
 
 clean:
 	-rm *.o
-	-rm run
-	-rm test
+	-rm -rf bin

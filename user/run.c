@@ -11,7 +11,7 @@ void main()
 	if (psid){ // parent
 	
 	}else{ // child
-		execve("/bin/test", 0, 0);		
+		execve("/bin/sh", 0, 0);		
 	}
 	/*char msg1[] = "return val 1\n";
 	while(i < 3){

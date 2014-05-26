@@ -16,7 +16,6 @@ typedef struct _semaphore
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-
 typedef struct _semaphore
 {
 	unsigned long long event;
@@ -26,7 +25,9 @@ typedef struct _semaphore
 unsigned GetCurrentTime();
 #endif
 
+typedef void (*enum_dir_callback)(char* name);
 
+void enum_dir(char* dir, enum_dir_callback fn);
 
 void sema_init(semaphore* lock, char * name, int init_state);
 
