@@ -16,7 +16,7 @@ CFLAGS	= -g -c -m32 $(CSTRICT) -fno-stack-protector -fno-builtin -I./ -I../
 ASFLAGS	= -f elf32
 LDFILE	= -m elf_i386 -T link.ld 
 LDFLAGS	= $(LDFILE)
-TARGETS = run sh
+TARGETS = run sh uname
 LIBS	= lib.o \
 		  syscall.o
 
@@ -39,9 +39,16 @@ run: run.o clib
 	$(LD) $(LDFLAGS) -o run.dbg run.o libc.a
 	$(LD) $(LDFLAGS) -s -o bin/run run.o libc.a
 
-run.o: run.c run.h
+run.o: run.c run.h syscall.h
 	$(CC) $(CFLAGS) -o run.o run.c
 
+uname: uname.o clib
+	$(LD) $(LDFLAGS) -o uname.dbg uname.o libc.a
+	$(LD) $(LDFLAGS) -s -o bin/uname uname.o libc.a
+
+uname.o: uname.c syscall.h
+	$(CC) $(CFLAGS) -o uname.o uname.c
+	
 syscall.o: syscall.c syscall.h ../syscall/unistd.h
 	$(CC) $(CFLAGS) -o syscall.o syscall.c
 

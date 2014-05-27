@@ -49,11 +49,12 @@ DEFINE_SYSCALL3(read, unsigned, fd, const char*, buf, unsigned, len)
 DEFINE_SYSCALL3(write, unsigned, fd, const char*, buf, unsigned, len)
 DEFINE_SYSCALL1(open, const char*, path)
 DEFINE_SYSCALL1(close, unsigned, fd)
-DEFINE_SYSCALL1(waitpid, unsigned, fd)
+DEFINE_SYSCALL3(waitpid, unsigned, pid, int*, status, int ,option);
 DEFINE_SYSCALL2(creat, const char*, path, unsigned, mode)
 DEFINE_SYSCALL3(execve,const char*, path, char** const, argv, char** const, env)
 DEFINE_SYSCALL1(brk, void*, addr)
 DEFINE_SYSCALL0(getpid);
 DEFINE_SYSCALL1(uname, struct utsname*, utname);
 DEFINE_SYSCALL0(sched_yield);
+DEFINE_SYSCALL2(stat, const char*, path, struct stat*, buf);
 #endif

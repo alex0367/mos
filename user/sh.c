@@ -1,29 +1,35 @@
 #include <syscall.h>
+#include <fs.h>
+#include <syscall/unistd.h>
 
 #define SH_PREFIX "sh$ "
 #define COMMAND_NOT_FOUND ": command not found\n"
 
-static void run_cmd(char* cmd)
+static void run_cmd(char* cmd, char* arg_line)
 {
-    if (!strcmp(cmd, "uname")) {
-        struct utsname utname;
+	char path[64] = "/bin/";
+	struct stat s;
+	int pid = 0;
+	strcat(path, cmd);
+	if (stat(path, &s) == -1){
+		write(1, cmd, strlen(cmd));
+		write(1, COMMAND_NOT_FOUND, strlen(COMMAND_NOT_FOUND));
+		return;
+	}
 
-        uname(&utname);
-        write(1, utname.sysname, strlen(utname.sysname));
-        write(1, " ", 1);
-        write(1, utname.release, strlen(utname.release));
-        write(1, " ", 1);
-        write(1, utname.version, strlen(utname.version));
-        write(1, " ", 1);
-        write(1, utname.machine, strlen(utname.machine));
-        write(1, " ", 1);
-        write(1, utname.nodename, strlen(utname.nodename));
-        write(1, "\n", 1);
-        return;
-    }
+	if (S_ISDIR(s.st_mode)){
+		write(1, cmd, strlen(cmd));
+		write(1, COMMAND_NOT_FOUND, strlen(COMMAND_NOT_FOUND));
+		return;
+	}
 
-    write(1, cmd, strlen(cmd));
-    write(1, COMMAND_NOT_FOUND, strlen(COMMAND_NOT_FOUND));
+	pid = fork();
+	if (pid){
+		waitpid(pid, 0, 0);
+	}else{
+		execve(path, 0, 0);
+	}
+
 }
 
 void main()
@@ -40,7 +46,7 @@ void main()
 			write(1, SH_PREFIX, strlen(SH_PREFIX));
 			write(1, cmd, idx);
 			write(1, "\n", 1);
-			run_cmd(cmd);
+			run_cmd(cmd, 0);
 			write(1, SH_PREFIX, strlen(SH_PREFIX));
 			idx = 0;
 			tmp = cmd;
