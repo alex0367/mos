@@ -43,7 +43,7 @@
 		SYSCALL3(__NR_##name, arg0, arg1, arg2);\
 	}
 
-DEFINE_SYSCALL0(exit)
+DEFINE_SYSCALL1(exit, unsigned, status);
 DEFINE_SYSCALL0(fork)
 DEFINE_SYSCALL3(read, unsigned, fd, const char*, buf, unsigned, len)
 DEFINE_SYSCALL3(write, unsigned, fd, const char*, buf, unsigned, len)
