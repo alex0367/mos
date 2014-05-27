@@ -53,8 +53,7 @@ int sys_execve(const char* file, char** argv, char** envp)
 
 static void user_setup_enviroment()
 {
-    unsigned int esp0;
-    __asm__("movl %%esp, %0" : "=r"(esp0));
+    unsigned esp0 = (unsigned)CURRENT_TASK() + PAGE_SIZE;
     ps_update_tss(esp0);
     sys_execve("/bin/run", 0, 0);
 }
