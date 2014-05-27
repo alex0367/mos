@@ -36,10 +36,7 @@ void main()
 	write(1, msg, sizeof(msg)-1);
 	while(1){
 		int status = 0;
-		int pid = waitpid(1, &status, 0);
-        if (pid){
-			write(1, "waitpid returns\n", strlen("waitpid returns\n"));
-		}
+		int pid = waitpid(0, &status, 0);
 		sched_yield();
     }
 }

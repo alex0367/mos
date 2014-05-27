@@ -37,4 +37,13 @@
 #define S_IWOTH 00002
 #define S_IXOTH 00001
 
+struct dirent { /* when _DARWIN_FEATURE_64_BIT_INODE is NOT defined */
+    unsigned      d_ino;                /* file number of entry */
+    unsigned short d_reclen;             /* length of this record */
+    unsigned  d_mode;               /* file type, see below */
+    unsigned char  d_namlen;             /* length of string in d_name */
+    char    d_name[255 + 1];   /* name must be no longer than this */
+}; 
+
+
 #endif
