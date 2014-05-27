@@ -10,7 +10,11 @@ static void run_cmd(char* cmd, char* arg_line)
 	char path[64] = "/bin/";
 	struct stat s;
 	int pid = 0;
-	strcat(path, cmd);
+
+    if (!strcmp(cmd, "exit")) {
+        exit(0);
+    }
+    strcat(path, cmd); 
 	if (stat(path, &s) == -1){
 		write(1, cmd, strlen(cmd));
 		write(1, COMMAND_NOT_FOUND, strlen(COMMAND_NOT_FOUND));
@@ -27,7 +31,10 @@ static void run_cmd(char* cmd, char* arg_line)
 	if (pid){
 		waitpid(pid, 0, 0);
 	}else{
-		execve(path, 0, 0);
+        char* argv[2];
+        argv[0] = "-l";
+        argv[1] = "\0";
+		execve(path, argv, 0);
 	}
 
 }

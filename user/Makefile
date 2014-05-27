@@ -12,11 +12,11 @@ else
 endif
 
 CSTRICT	= -Werror=uninitialized
-CFLAGS	= -g -c -m32 $(CSTRICT) -fno-stack-protector -fno-builtin -I./ -I../
+CFLAGS	= -ggdb3 -c -m32 $(CSTRICT) -fno-stack-protector -fno-builtin -I./ -I../
 ASFLAGS	= -f elf32
 LDFILE	= -m elf_i386 -T link.ld 
 LDFLAGS	= $(LDFILE)
-TARGETS = run sh uname
+TARGETS = run sh uname ls cat
 LIBS	= lib.o \
 		  syscall.o
 
@@ -48,6 +48,20 @@ uname: uname.o clib
 
 uname.o: uname.c syscall.h
 	$(CC) $(CFLAGS) -o uname.o uname.c
+
+ls: ls.o clib
+	$(LD) $(LDFLAGS) -o ls.dbg ls.o libc.a
+	$(LD) $(LDFLAGS) -s -o bin/ls ls.o libc.a
+
+ls.o: ls.c syscall.h
+	$(CC) $(CFLAGS) -o ls.o ls.c
+
+cat: cat.o clib
+	$(LD) $(LDFLAGS) -o cat.dbg cat.o libc.a
+	$(LD) $(LDFLAGS) -s -o bin/cat cat.o libc.a
+
+ls.o: ls.c syscall.h
+	$(CC) $(CFLAGS) -o ls.o ls.c
 	
 syscall.o: syscall.c syscall.h ../syscall/unistd.h
 	$(CC) $(CFLAGS) -o syscall.o syscall.c

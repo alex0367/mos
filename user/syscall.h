@@ -43,6 +43,9 @@
 		SYSCALL3(__NR_##name, arg0, arg1, arg2);\
 	}
 
+typedef void* DIR;
+struct dirent;
+
 DEFINE_SYSCALL1(exit, unsigned, status);
 DEFINE_SYSCALL0(fork)
 DEFINE_SYSCALL3(read, unsigned, fd, const char*, buf, unsigned, len)
@@ -57,4 +60,7 @@ DEFINE_SYSCALL0(getpid);
 DEFINE_SYSCALL1(uname, struct utsname*, utname);
 DEFINE_SYSCALL0(sched_yield);
 DEFINE_SYSCALL2(stat, const char*, path, struct stat*, buf);
+DEFINE_SYSCALL1(opendir, const char*, path);
+DEFINE_SYSCALL1(closedir, DIR, dir);
+DEFINE_SYSCALL2(readdir, DIR, dir, struct dirent*, ent);
 #endif
