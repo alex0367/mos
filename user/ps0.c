@@ -167,6 +167,9 @@ static unsigned ps_setup_v(unsigned argc, char** argv, unsigned envc, char** env
     esp -= 4;
     *((unsigned*)esp) = argc;
 
+    esp -= 4;
+    *((unsigned*)esp) = 0;
+
     return esp;
 
 }

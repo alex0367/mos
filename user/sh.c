@@ -32,9 +32,14 @@ static void run_cmd(char* cmd, char* arg_line)
 		waitpid(pid, 0, 0);
 	}else{
         char* argv[2];
-        argv[0] = "-l";
-        argv[1] = "\0";
-		execve(path, argv, 0);
+		if (arg_line) {
+			argv[0] = arg_line;
+			argv[1] = '\0';
+			execve(path, argv, 0);
+		}else{
+			execve(path, 0, 0);
+		}
+		
 	}
 
 }
@@ -49,11 +54,18 @@ void main()
 		read(0, tmp, 1);
 		write(1, tmp, 1);
 		if( *tmp == '\r' ){
+			char* args = 0;
+
             *tmp = '\0';
 			write(1, SH_PREFIX, strlen(SH_PREFIX));
 			write(1, cmd, idx);
 			write(1, "\n", 1);
-			run_cmd(cmd, 0);
+			args = strchr(cmd, ' ');
+			if (args) {
+				*args = '\0';
+				args++;
+			}
+			run_cmd(cmd, args);
 			write(1, SH_PREFIX, strlen(SH_PREFIX));
 			idx = 0;
 			tmp = cmd;
