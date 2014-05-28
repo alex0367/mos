@@ -22,6 +22,8 @@ static void cleanup()
     }
 
     ps_cleanup_all_user_map(cur);
+
+    cur->user.heap_top = USER_HEAP_BEGIN;
 }
 
 static void ps_get_argc_envc(const char* file, 
