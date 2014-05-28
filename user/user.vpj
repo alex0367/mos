@@ -62,6 +62,7 @@
 			<F N="run.c"/>
 			<F N="sh.c"/>
 			<F N="syscall.c"/>
+			<F N="test.c"/>
 			<F N="uname.c"/>
 		</Folder>
 		<Folder

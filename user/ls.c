@@ -11,8 +11,7 @@ int main(int argc, char** argv)
     }
 
     while (readdir(dir, &ent)) {
-        write(1, ent.d_name, ent.d_namlen);
-        write(1, "\n", 1);
+        printf("%s\n", ent.d_name);
     }
 
     closedir(dir);

@@ -1,6 +1,7 @@
 #include <syscall.h>
 #include <fs.h>
 #include <syscall/unistd.h>
+#include <lib/klib.h>
 
 #define STR_NO_SUCH_FILE "No such file\n"
 #define STR_IS_DIRECTORY "Is a directory\n"
@@ -38,12 +39,12 @@ static int cat_file(const char* file)
 	char buf[64];
 
 	if( stat(file, &s) == -1){
-		write(1, STR_NO_SUCH_FILE, strlen(STR_NO_SUCH_FILE));
+		printf(STR_NO_SUCH_FILE);
 		return -1;
 	}
 
 	if(S_ISDIR(s.st_mode)){
-		write(1, STR_IS_DIRECTORY, strlen(STR_IS_DIRECTORY));
+		printf(STR_IS_DIRECTORY);
 		return -1;
 	}
 
@@ -65,6 +66,7 @@ static int cat_file(const char* file)
 
 int main(int argc, char** argv)
 {
+	printf("argc is %d\n", argc);
 	if(argc < 2)
 	{
 		return cat_stdin();
