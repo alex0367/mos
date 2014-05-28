@@ -16,6 +16,7 @@ typedef struct _semaphore
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <syscall/unistd.h>
 typedef struct _semaphore
 {
 	unsigned long long event;
@@ -55,6 +56,7 @@ int munmap(void* addr, unsigned len);
 typedef struct _task_struct
 {
 	unsigned fds[256];
+	unsigned file_off[256];
 	semaphore fd_lock;
 }task_struct;
 
