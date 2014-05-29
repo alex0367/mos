@@ -24,7 +24,7 @@ static void print_sh_prefix(int status)
 
 static int run_cmd(char* cmd, char* arg_line)
 {
-	char path[64] = "/bin/";
+	char path[256] = "/bin/";
 	struct stat s;
 	int pid = 0;
 	int status = 0;
@@ -44,7 +44,12 @@ static int run_cmd(char* cmd, char* arg_line)
 		return 0;
 	}
 
-    strcat(path, cmd); 
+    strcat(path, cmd);
+	if( strlen(path) >= 64 ){
+		printf("Command too long\n");
+		return -1;
+	}
+
 	if (stat(path, &s) == -1){
 		printf("%s: command not found\n", cmd);
 		return -1;
@@ -103,6 +108,10 @@ void main()
 			write(1, tmp, 1);
 			idx++;
 			tmp++;
+			if (idx >= 80){
+				idx--;
+				tmp--;
+			}
 		}
 	}
 }

@@ -57,7 +57,6 @@ DEFINE_SYSCALL3(write, unsigned, fd, const char*, buf, unsigned, len)
 DEFINE_SYSCALL1(open, const char*, path)
 DEFINE_SYSCALL1(close, unsigned, fd)
 DEFINE_SYSCALL3(waitpid, unsigned, pid, int*, status, int ,option);
-DEFINE_SYSCALL2(creat, const char*, path, unsigned, mode)
 DEFINE_SYSCALL3(execve,const char*, path, char** const, argv, char** const, env)
 DEFINE_SYSCALL0(getpid);
 DEFINE_SYSCALL1(uname, struct utsname*, utname);
@@ -71,4 +70,7 @@ DEFINE_SYSCALL1(time, time_t*, t);
 DEFINE_SYSCALL2(getcwd, const char*, name, unsigned, len);
 DEFINE_SYSCALL1(chdir, const char*, path);
 DEFINE_SYSCALL3(ioctl, unsigned, fd, unsigned, cmd, void*, buf);
+DEFINE_SYSCALL2(creat, const char*, path, unsigned, mode);
+DEFINE_SYSCALL1(rmdir, const char*, path);
+DEFINE_SYSCALL2(mkdir, const char*, path, unsigned, mode);
 #endif
