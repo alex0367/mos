@@ -31,12 +31,25 @@ static int cat_stdin()
 	return 0;
 }
 
-static int cat_file(const char* file)
+static int cat_file(const char* f)
 {
 	struct stat s;
 	unsigned fd;
 	unsigned size;
-	char buf[64];
+	char buf[64] = {0};
+	char file[256] = {0};
+	
+	if (!f)
+	  return -1;
+
+	if (f[0] != '/'){
+		getcwd(file, 256);
+		if( strcmp(file, "/") != 0 )
+		  strcat(file, "/");
+		strcat(file, f);
+	}else{
+		strcpy(file, f);
+	}
 
 	if( stat(file, &s) == -1){
 		printf(STR_NO_SUCH_FILE);
@@ -66,7 +79,6 @@ static int cat_file(const char* file)
 
 int main(int argc, char** argv)
 {
-	printf("argc is %d\n", argc);
 	if(argc < 2)
 	{
 		return cat_stdin();

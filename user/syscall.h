@@ -47,6 +47,9 @@ typedef void* DIR;
 struct dirent;
 typedef unsigned long time_t;
 
+void tty_set_fg_color(unsigned color);
+void tty_set_bg_color(unsigned color);
+
 DEFINE_SYSCALL1(exit, unsigned, status);
 DEFINE_SYSCALL0(fork)
 DEFINE_SYSCALL3(read, unsigned, fd, const char*, buf, unsigned, len)
@@ -65,4 +68,7 @@ DEFINE_SYSCALL1(closedir, DIR, dir);
 DEFINE_SYSCALL2(readdir, DIR, dir, struct dirent*, ent);
 DEFINE_SYSCALL1(brk, unsigned, addr);
 DEFINE_SYSCALL1(time, time_t*, t);
+DEFINE_SYSCALL2(getcwd, const char*, name, unsigned, len);
+DEFINE_SYSCALL1(chdir, const char*, path);
+DEFINE_SYSCALL3(ioctl, unsigned, fd, unsigned, cmd, void*, buf);
 #endif
