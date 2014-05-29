@@ -1,32 +1,63 @@
 #include <syscall.h>
 #include <fs.h>
 #include <syscall/unistd.h>
+#include <lib/klib.h>
 
 #define SH_PREFIX "sh$ "
+struct utsname machine;
 
-static void run_cmd(char* cmd, char* arg_line)
+static void print_sh_prefix(int status)
+{
+	char cwd[256] = {0};
+	getcwd(cwd, 256);
+	tty_set_fg_color(clGreen);
+	printf("%s@%s ", "root", "root");
+	tty_set_fg_color(clBlue);
+	printf("%s\n", cwd);
+	if (status >= 0)
+	  tty_set_fg_color(clBlue);
+	else
+	  tty_set_fg_color(clRed);
+	printf("$ ");
+	tty_set_fg_color(clLightGray);
+}
+
+static int run_cmd(char* cmd, char* arg_line)
 {
 	char path[64] = "/bin/";
 	struct stat s;
 	int pid = 0;
+	int status = 0;
+
+	if (!cmd || !*cmd)
+	  return 0;
 
     if (!strcmp(cmd, "exit")) {
         exit(0);
     }
+
+	if (!strcmp(cmd, "cd")){
+		if (!chdir(arg_line)){
+			printf("No such directory!\n");
+			return -1;
+		}
+		return 0;
+	}
+
     strcat(path, cmd); 
 	if (stat(path, &s) == -1){
 		printf("%s: command not found\n", cmd);
-		return;
+		return -1;
 	}
 
 	if (S_ISDIR(s.st_mode)){
 		printf("%s: command not found\n", cmd);
-		return;
+		return -1;
 	}
 
 	pid = fork();
 	if (pid){
-		waitpid(pid, 0, 0);
+		status = waitpid(pid, 0, 0);
 	}else{
         char* argv[2];
 		if (arg_line) {
@@ -38,7 +69,7 @@ static void run_cmd(char* cmd, char* arg_line)
 		}
 		
 	}
-
+	return status;
 }
 
 void main()
@@ -46,25 +77,30 @@ void main()
 	char cmd[80] = {0};
 	int idx = 0;
 	char* tmp = cmd;
-	printf(SH_PREFIX);
+
+	uname(&machine);
+
+	print_sh_prefix(0);
 	while(1){
 		read(0, tmp, 1);
-		write(1, tmp, 1);
 		if( *tmp == '\r' ){
 			char* args = 0;
+			int status = 0;
 
             *tmp = '\0';
-			printf("%s%s\n", SH_PREFIX, cmd);
+			write(1, tmp, 1);
+			write(1, "\n", 1);
 			args = strchr(cmd, ' ');
 			if (args) {
 				*args = '\0';
 				args++;
 			}
-			run_cmd(cmd, args);
-			printf(SH_PREFIX);
+			status = run_cmd(cmd, args);
+			print_sh_prefix(status);
 			idx = 0;
 			tmp = cmd;
 		}else{
+			write(1, tmp, 1);
 			idx++;
 			tmp++;
 		}

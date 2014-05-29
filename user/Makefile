@@ -16,7 +16,7 @@ CFLAGS	= -ggdb3 -c -m32 $(CSTRICT) -fno-stack-protector -fno-builtin -I./ -I../
 ASFLAGS	= -f elf32
 LDFILE	= -m elf_i386 -T link.ld 
 LDFLAGS	= $(LDFILE)
-TARGETS = run sh uname ls cat test
+TARGETS = run sh uname ls cat pwd test
 LIBS	= lib.o \
 		  syscall.o
 
@@ -62,6 +62,14 @@ cat: cat.o clib
 
 cat.o: cat.c syscall.h
 	$(CC) $(CFLAGS) -o cat.o cat.c
+
+pwd: pwd.o clib
+	$(LD) $(LDFLAGS) -o pwd.dbg pwd.o libc.a
+	$(LD) $(LDFLAGS) -s -o bin/pwd pwd.o libc.a
+
+pwd.o: pwd.c syscall.h
+	$(CC) $(CFLAGS) -o pwd.o pwd.c
+
 
 test: test.o clib
 	$(LD) $(LDFLAGS) -o test.dbg test.o libc.a
