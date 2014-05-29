@@ -16,6 +16,13 @@ void main()
 	while(1){
 		int status = 0;
 		int pid = waitpid(0, &status, 0);
+		if (pid == psid){
+			printf("Fatal error: first process exit!\n");
+			psid = fork();
+			if(!psid){
+				execve("/bin/sh", 0, 0);
+			}
+		}
 		sched_yield();
     }
 }
