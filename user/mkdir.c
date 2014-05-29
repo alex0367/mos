@@ -23,7 +23,7 @@ static int mkdir_file(const char* f)
 	}
 
 	if( stat(file, &s) != -1){
-		printf("File already exist");
+		printf("File already exist\n");
 		return -1;
 	}
 

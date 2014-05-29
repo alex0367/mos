@@ -16,7 +16,7 @@ CFLAGS	= -ggdb3 -c -m32 $(CSTRICT) -fno-stack-protector -fno-builtin -I./ -I../
 ASFLAGS	= -f elf32
 LDFILE	= -m elf_i386 -T link.ld 
 LDFLAGS	= $(LDFILE)
-TARGETS = run sh uname ls cat pwd mkdir rmdir test
+TARGETS = run sh uname ls cat pwd mkdir rmdir reboot test
 LIBS	= lib.o \
 		  syscall.o
 
@@ -84,6 +84,13 @@ rmdir: rmdir.o clib
 
 rmdir.o: rmdir.c syscall.h
 	$(CC) $(CFLAGS) -o rmdir.o rmdir.c
+
+reboot: reboot.o clib
+	$(LD) $(LDFLAGS) -o reboot.dbg reboot.o libc.a
+	$(LD) $(LDFLAGS) -s -o bin/reboot reboot.o libc.a
+
+reboot.o: reboot.c syscall.h
+	$(CC) $(CFLAGS) -o reboot.o reboot.c
 
 
 
