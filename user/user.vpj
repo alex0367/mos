@@ -57,6 +57,7 @@
 			Name="Source Files"
 			Filters="*.c;*.C;*.cc;*.cpp;*.cp;*.cxx;*.c++;*.prg;*.pas;*.dpr;*.asm;*.s;*.bas;*.java;*.cs;*.sc;*.e;*.cob;*.html;*.rc;*.tcl;*.py;*.pl;*.d;*.m;*.mm;*.go">
 			<F N="cat.c"/>
+			<F N="crt0.c"/>
 			<F N="../lib/klib.c"/>
 			<F N="ls.c"/>
 			<F N="run.c"/>
@@ -82,6 +83,7 @@
 		<Folder
 			Name="Other Files"
 			Filters="">
+			<F N="link.ld"/>
 			<F
 				N="Makefile"
 				Type="Makefile"/>
