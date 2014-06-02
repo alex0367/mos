@@ -145,7 +145,7 @@ static void run_cmd(block* b)
 
 }
 
-static void copy_user_program(char *name)
+static void copy_user_program(char *name, char* dst_dir)
 {
 	unsigned ffs_fd;
 	FILE* local_f;
@@ -153,12 +153,18 @@ static void copy_user_program(char *name)
 	char* buf;
 	char ffs_name[64];
 	char local_name[64];
+    int _len = strlen(dst_dir);
+    char _dst[64];
 
-	strcpy(ffs_name, "/bin/");
+    strcpy(_dst, dst_dir);
+	strcpy(ffs_name, dst_dir);
 	strcat(ffs_name, name);
-	strcpy(local_name, "../user/bin/");
+	strcpy(local_name, "../user");
+    strcat(local_name, dst_dir);
 	strcat(local_name, name);
-	fs_create("/bin", S_IRWXU | S_IRWXG | S_IRWXO | S_IFDIR);
+
+    _dst[_len-1] = '\0';
+	fs_create(_dst, S_IRWXU | S_IRWXG | S_IRWXO | S_IFDIR);
 	fs_create(ffs_name,  S_IRWXU | S_IRWXG | S_IRWXO);
 	ffs_fd = fs_open(ffs_name);
 	local_f = fopen(local_name, "r");
@@ -174,10 +180,10 @@ static void copy_user_program(char *name)
 	free(buf);
 }
 
-static void user_program_callback(char* name)
+static void user_program_callback(char* name , char* dst_dir)
 {
 	printf("copy %s\n", name);
-	copy_user_program(name);
+	copy_user_program(name, dst_dir);
 }
 
 int main (int argc, char *argv[])
@@ -196,9 +202,14 @@ int main (int argc, char *argv[])
 			ffs_attach(b);
 			vfs_trying_to_mount_root();
 			{
-				enum_dir("../user/bin", user_program_callback);
+				enum_dir("../user/bin", user_program_callback, "/bin/");
+                enum_dir("../user/lib", user_program_callback, "/lib/");
 			}
+            printf("files under /bin\n");
 			test_list("/bin");
+            printf("files under /lib\n");
+            test_list("/lib");
+
 
 		}
 
