@@ -17,7 +17,7 @@ ASFLAGS	= -f elf32
 LDFILE	= -m elf_i386 -T link.ld 
 LDFLAGS	= $(LDFILE)
 LIBFLAG = -Llib -lsys
-TARGETS = run sh uname ls cat pwd mkdir rmdir reboot test
+TARGETS = run sh # uname ls cat pwd mkdir rmdir reboot test
 LIBS	= lib.o \
 		  syscall.o
 
@@ -30,20 +30,20 @@ clib: $(LIBS)
 folder:
 	-mkdir bin
 
-crt0.o: crt0.c
-	$(CC) $(CFLAGS) -o crt0.o crt0.c
+crt0.o: crt0.s
+	$(CC) $(CFLAGS) -s -o crt0.o crt0.s
 
 
 sh: sh.o clib crt0.o
-	$(LD) $(LDFLAGS) $(LIBFLAG) -o sh.dbg sh.o crt0.o
-	$(LD) $(LDFLAGS) $(LIBFLAG) -s -o bin/sh sh.o crt0.o
+	$(LD) $(LDFLAGS) -o sh.dbg sh.o crt0.o libsys.a
+	$(LD) $(LDFLAGS) -s -o bin/sh sh.o crt0.o libsys.a
 
 sh.o: sh.c syscall.h
 	 $(CC) $(CFLAGS) -o sh.o sh.c
 
 run: run.o clib crt0.o
-	$(LD) $(LDFLAGS) $(LIBFLAG) -o run.dbg run.o crt0.o
-	$(LD) $(LDFLAGS) $(LIBFLAG) -s -o bin/run run.o crt0.o
+	$(LD) $(LDFLAGS) -o run.dbg run.o crt0.o libsys.a
+	$(LD) $(LDFLAGS) -s -o bin/run run.o crt0.o libsys.a
 
 run.o: run.c run.h syscall.h
 	$(CC) $(CFLAGS) -o run.o run.c
@@ -119,3 +119,4 @@ clean:
 	-rm *.a
 	-rm *.dbg
 	-rm -rf bin
+	-rm -rf lib

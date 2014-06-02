@@ -26,9 +26,9 @@ typedef struct _semaphore
 unsigned GetCurrentTime();
 #endif
 
-typedef void (*enum_dir_callback)(char* name);
+typedef void (*enum_dir_callback)(char* name, char* dst_dir);
 
-void enum_dir(char* dir, enum_dir_callback fn);
+void enum_dir(char* dir, enum_dir_callback fn, char* dst_dir);
 
 void sema_init(semaphore* lock, char * name, int init_state);
 

@@ -113,12 +113,12 @@ static unsigned ps_setup_v(unsigned argc, char** argv, unsigned envc, char** env
     char** tmp_array_env = 0;
     unsigned argvp, envpp;
 
-    if (argv_buf_len) {
-        tmp_array_argv = kmalloc(argv_buf_len);
+    if (1) {
+        tmp_array_argv = kmalloc(argv_buf_len+4);
     }
 
-    if (env_buf_len) {
-        tmp_array_env = kmalloc(env_buf_len);
+    if (1) {
+        tmp_array_env = kmalloc(env_buf_len+4);
     }
 
     *esp = '\0'; 
@@ -130,6 +130,8 @@ static unsigned ps_setup_v(unsigned argc, char** argv, unsigned envc, char** env
         esp[len-1] = '\0';
     }
 
+    tmp_array_argv[argc] = 0;
+
     esp--;
     *esp = '\0';
     for (i = 0; i < envc; i++) {
@@ -140,37 +142,37 @@ static unsigned ps_setup_v(unsigned argc, char** argv, unsigned envc, char** env
         esp[len-1] = '\0';
     }
 
-    if (argv_buf_len) {
-        esp -= argv_buf_len; 
-        argvp = esp;
-        memcpy(argvp, tmp_array_argv, argv_buf_len);
-    }
+    tmp_array_env[envc] = 0;
 
-    if (env_buf_len) {
-        esp -= env_buf_len; 
+
+    if (1) {
+        esp -= (env_buf_len+4); 
         envpp = esp;
-        memcpy(envpp, tmp_array_env, env_buf_len);
+        memcpy(envpp, tmp_array_env, env_buf_len+4);
     }
 
-    if (tmp_array_argv) {
+    if (1) {
+        esp -= (argv_buf_len+4); 
+        argvp = esp;
+        memcpy(argvp, tmp_array_argv, argv_buf_len+4);
+    }
+
+
+
+    if (1) {
         kfree(tmp_array_argv);
     }
 
-    if (tmp_array_env) {
+    if (1) {
         kfree(tmp_array_env);
     }
 
-    esp -= 4; 
-    *((unsigned*)esp) = envpp;
-
-    esp -= 4;
-    *((unsigned*)esp) = argvp;
 
     esp -= 4;
     *((unsigned*)esp) = argc;
 
-    esp -= 4;
-    *((unsigned*)esp) = 0;
+    //esp -= 4;
+    //*((unsigned*)esp) = 0;
 
     return esp;
 

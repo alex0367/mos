@@ -77,7 +77,7 @@ static int run_cmd(char* cmd, char* arg_line)
 	return status;
 }
 
-void main()
+void main(int argc, char** argv, char** env)
 {
 	char cmd[80] = {0};
 	int idx = 0;

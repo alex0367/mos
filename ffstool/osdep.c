@@ -38,7 +38,7 @@ void print_quota()
 	printf("quota %x, highest %x\n", quota, high_quota);
 }
 
-void enum_dir(char* name, enum_dir_callback fn)
+void enum_dir(char* name, enum_dir_callback fn, char* dst_dir)
 {
 	DIR* d = opendir(name);
 	struct dirent * entry;
@@ -53,7 +53,7 @@ void enum_dir(char* name, enum_dir_callback fn)
 		  continue;
 
 
-		fn(entry->d_name);
+		fn(entry->d_name, dst_dir);
 	}
 	
 	closedir(d);
