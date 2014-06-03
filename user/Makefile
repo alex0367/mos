@@ -17,7 +17,7 @@ ASFLAGS	= -f elf32
 LDFILE	= -m elf_i386 -T link.ld 
 LDFLAGS	= $(LDFILE)
 LIBFLAG = -Llib -lsys
-TARGETS = run sh # uname ls cat pwd mkdir rmdir reboot test
+TARGETS = run sh ls # uname cat pwd mkdir rmdir reboot test
 LIBS	= lib.o \
 		  syscall.o
 
@@ -29,6 +29,7 @@ clib: $(LIBS)
 
 folder:
 	-mkdir bin
+	-mkdir lib
 
 crt0.o: crt0.s
 	$(CC) $(CFLAGS) -s -o crt0.o crt0.s
@@ -56,8 +57,8 @@ uname.o: uname.c syscall.h
 	$(CC) $(CFLAGS) -o uname.o uname.c
 
 ls: ls.o clib crt0.o
-	$(LD) $(LDFLAGS) $(LIBFLAG) -o ls.dbg ls.o crt0.o
-	$(LD) $(LDFLAGS) $(LIBFLAG) -s -o bin/ls ls.o crt0.o
+	$(LD) $(LDFLAGS) -o ls.dbg ls.o crt0.o libsys.a
+	$(LD) $(LDFLAGS) -s -o bin/ls ls.o crt0.o libsys.a
 
 ls.o: ls.c syscall.h
 	$(CC) $(CFLAGS) -o ls.o ls.c
