@@ -12,12 +12,11 @@ static void cleanup()
     int i = 0;
 
     for (i = 0; i < MAX_FD; i++) {
-        if (cur->fds[i] != 0 && 
-            cur->fds[i] != INODE_STD_IN &&
-            cur->fds[i] != INODE_STD_OUT &&
-            cur->fds[i] != INODE_STD_ERR) {
-            fs_close(cur->fds[i]);
-            cur->file_off[i] = 0;
+        if (cur->fds[i].flag != 0 && 
+            cur->fds[i].file != INODE_STD_IN &&
+            cur->fds[i].file != INODE_STD_OUT &&
+            cur->fds[i].file != INODE_STD_ERR) {
+            fs_close(i);
         }
     }
 
