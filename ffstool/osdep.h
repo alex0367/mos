@@ -52,11 +52,25 @@ int munmap(void* addr, unsigned len);
 #include <sys/mman.h>
 #endif
 
+#define fd_flag_isdir 0x00000001
+#define fd_flag_readonly 0x00000002
+#define fd_flag_create 0x00000004
+#define fd_flag_append 0x00000008
+#define fd_flag_used	0x80000000
 
+typedef struct _fd_type
+{
+	union{
+		unsigned	file;
+		unsigned		dir;
+	};
+	unsigned file_off;
+	unsigned flag;
+}fd_type;
 typedef struct _task_struct
 {
-	unsigned fds[256];
-	unsigned file_off[256];
+
+	fd_type fds[256];
 	semaphore fd_lock;
 }task_struct;
 
