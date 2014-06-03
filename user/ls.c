@@ -52,11 +52,11 @@ int main(int argc, char** argv)
     // FIXME
 	// now can only list current
     struct dirent ent;
-    DIR dir = 0;
+    unsigned dir = 0;
 	char cwd[256] = {0};
 
 	getcwd(cwd, 256);
-	dir = (DIR)opendir(cwd);
+	dir = open(cwd);
     if (!dir) {
         return -1;
     }
@@ -86,7 +86,7 @@ int main(int argc, char** argv)
 		printf("%s\n", ent.d_name);
     }
 
-    closedir(dir);
+    close(dir);
 
     return 0;
 }
