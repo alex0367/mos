@@ -102,15 +102,53 @@ static void ps_free_v(char** v, unsigned size)
     kfree(v);
 }
 
-static unsigned ps_setup_v(unsigned argc, char** argv, unsigned envc, char** envp, unsigned top)
+/* TODO; fix this */
+#define ELF_HWCAP   0x0183FBFF  //(boot_cpu_data.x86_capability)
+
+/* This yields a string that ld.so will use to load implementation
+specific libraries for optimization.  This is more specific in
+intent than poking at uname or /proc/cpuinfo.
+
+For the moment, we have only optimizations for the Intel generations,
+but that could change... */
+
+#define ELF_PLATFORM "i686"
+/* Symbolic values for the entries in the auxiliary table
+   put on the initial stack */
+#define AT_NULL   0	/* end of vector */
+#define AT_IGNORE 1	/* entry should be ignored */
+#define AT_EXECFD 2	/* file descriptor of program */
+#define AT_PHDR   3	/* program headers for program */
+#define AT_PHENT  4	/* size of program header entry */
+#define AT_PHNUM  5	/* number of program headers */
+#define AT_PAGESZ 6	/* system page size */
+#define AT_BASE   7	/* base address of interpreter */
+#define AT_FLAGS  8	/* flags */
+#define AT_ENTRY  9	/* entry point of program */
+#define AT_NOTELF 10	/* program is not ELF */
+#define AT_UID    11	/* real uid */
+#define AT_EUID   12	/* effective uid */
+#define AT_GID    13	/* real gid */
+#define AT_EGID   14	/* effective gid */
+#define AT_PLATFORM 15  /* string identifying CPU for optimizations */
+#define AT_HWCAP  16    /* arch dependent hints at CPU capabilities */
+#define AT_CLKTCK   17      /* Frequency of times() */
+
+static unsigned ps_setup_v(char* file, 
+                           int argc, char** argv, 
+                           int envc, char** envp, 
+                           unsigned top,
+                           mos_binfmt* exec)
 {
     int i = 0;
-    char* esp = (char*)(top - 1);
+    char* esp = (char*)(top);
+    unsigned* sp, *platform = 0;
     int argv_buf_len = argc * sizeof(char*);
     int env_buf_len = envc * sizeof(char*);
     char** tmp_array_argv = 0;
     char** tmp_array_env = 0;
     unsigned argvp, envpp;
+    int len;
 
     if (1) {
         tmp_array_argv = kmalloc(argv_buf_len+4);
@@ -120,8 +158,29 @@ static unsigned ps_setup_v(unsigned argc, char** argv, unsigned envc, char** env
         tmp_array_env = kmalloc(env_buf_len+4);
     }
 
-    *esp = '\0'; 
-    for (i = 0; i < argc; i++) {
+    // end marker
+    esp -= 4;
+    *((unsigned*)esp) = 0;
+
+    // file name
+    len = strlen(file)+1;
+    esp -= len;
+    strcpy(esp, file);
+
+
+    // env strings
+    for (i = envc-1; i >= 0; i--) {
+        int len = strlen(envp[i])+1;
+        esp -= len;
+        strcpy(esp, envp[i]);
+        tmp_array_env[i] = esp;
+        esp[len-1] = '\0';
+    }
+    tmp_array_env[envc] = 0;
+
+
+    // argv strings
+    for (i = argc-1; i >= 0; i--) {
         int len = strlen(argv[i])+1;
         esp -= len;
         strcpy(esp, argv[i]);
@@ -131,19 +190,54 @@ static unsigned ps_setup_v(unsigned argc, char** argv, unsigned envc, char** env
 
     tmp_array_argv[argc] = 0;
 
-    esp--;
-    *esp = '\0';
-    for (i = 0; i < envc; i++) {
-        int len = strlen(envp[i])+1;
-        esp -= len;
-        strcpy(esp, envp[i]);
-        tmp_array_env[i] = esp;
-        esp[len-1] = '\0';
+
+    // platform
+    len = sizeof(ELF_PLATFORM);
+    esp -= len;
+    strcpy(esp, ELF_PLATFORM);
+    platform = esp;
+
+    // 16 byte padding
+    esp = (char *)((~15UL & (unsigned long)(esp)) - 16UL);
+    sp = esp;
+
+#define __put_user(val, addr) ( *(unsigned long*)(addr) = (unsigned long)(val))
+
+#define NEW_AUX_ENT(nr, id, val) \
+  __put_user ((id), sp+(nr*2)); \
+  __put_user ((val), sp+(nr*2+1));
+
+
+    //开始存放辅助向量
+    sp -= 2;
+    NEW_AUX_ENT(0, AT_NULL, 0);//end of vector
+    if (platform) {
+        sp -= 2;
+        NEW_AUX_ENT(0, AT_PLATFORM, (unsigned long) platform);
     }
+    sp -= 3*2;
+    NEW_AUX_ENT(0, AT_HWCAP, ELF_HWCAP);
+    NEW_AUX_ENT(1, AT_PAGESZ, 4096);// 4096
+    NEW_AUX_ENT(2, AT_CLKTCK, 100);// 100
 
-    tmp_array_env[envc] = 0;
+    if (1) {//elf interp
+        sp -= 10*2;
 
+        NEW_AUX_ENT(0, AT_PHDR, exec->elf_load_addr + exec->e_phoff);
+        NEW_AUX_ENT(1, AT_PHENT, sizeof (Elf32_Phdr));
+        NEW_AUX_ENT(2, AT_PHNUM, exec->e_phnum);
+		//interp加载基址,如果就是/lib/ld-linux.so.2或静态链接可执行文件，则为0
+        NEW_AUX_ENT(3, AT_BASE, exec->interp_load_addr);
+        NEW_AUX_ENT(4, AT_FLAGS, 0);
+        NEW_AUX_ENT(5, AT_ENTRY, exec->e_entry);//原程序入口
+        NEW_AUX_ENT(6, AT_UID, 0);
+        NEW_AUX_ENT(7, AT_EUID, 0);
+        NEW_AUX_ENT(8, AT_GID, 0);
+        NEW_AUX_ENT(9, AT_EGID, 0);
+    }
+#undef NEW_AUX_ENT
 
+    esp = sp;
     if (1) {
         esp -= (env_buf_len+4); 
         envpp = esp;
@@ -183,16 +277,18 @@ int sys_execve(const char* file, char** argv, char** envp)
     int i = 0;
     unsigned esp_buttom = KERNEL_OFFSET - USER_STACK_PAGES*PAGE_SIZE;
     unsigned esp_top = KERNEL_OFFSET;
-    char file_name[64] = {0};
+    char *file_name;
     unsigned argc = 0, envc = 0;
     char** s_argv = 0;
     char** s_envp = 0;
+    mos_binfmt fmt = {0};
 
     if (!file) {
         printk("fatal error: trying to execvp empty file!\n");
         return -1;
     }
 
+    file_name = kmalloc(64);
     ps_get_argc_envc(file,argv,envp,&argc,&envc);
     s_argv = ps_save_argv(file,argv, argc);
     s_envp = ps_save_envp(envp, envc);
@@ -200,7 +296,7 @@ int sys_execve(const char* file, char** argv, char** envp)
     strcpy(file_name, file);
 
     cleanup();
-    eip = elf_map(file_name);
+    eip = elf_map(file_name, &fmt);
     if (!eip) {
         printk("fatal error: file %s not found!\n", file);
         asm("hlt");
@@ -211,11 +307,11 @@ int sys_execve(const char* file, char** argv, char** envp)
     }
 
 
-    esp_top = ps_setup_v(argc,s_argv,envc,s_envp,esp_top);
+    esp_top = ps_setup_v(file_name, argc,s_argv,envc,s_envp,esp_top, &fmt);
 
     ps_free_v(s_argv, argc);
     ps_free_v(s_envp, envc);
-
+    kfree(file_name);
     extern void switch_to_user_mode(unsigned eip, unsigned esp);
     switch_to_user_mode(eip, esp_top);
     // never return here
