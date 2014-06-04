@@ -17,7 +17,7 @@ ASFLAGS	= -f elf32
 LDFILE	= -m elf_i386 -T link.ld 
 LDFLAGS	= $(LDFILE)
 LIBFLAG = -Llib -lsys
-TARGETS = run sh ls # uname cat pwd mkdir rmdir reboot test
+TARGETS = run sh #ls  uname cat pwd mkdir rmdir reboot test
 LIBS	= lib.o \
 		  syscall.o
 
