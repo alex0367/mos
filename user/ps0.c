@@ -304,6 +304,7 @@ int sys_execve(const char* file, char** argv, char** envp)
 
     for (i = 0; i < USER_STACK_PAGES; i++) {
         mm_add_dynamic_map(esp_buttom+i*PAGE_SIZE, 0, PAGE_ENTRY_USER_DATA);
+        memset(esp_buttom+i*PAGE_SIZE, 0, PAGE_SIZE);
     }
 
 
