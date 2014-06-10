@@ -227,7 +227,7 @@ static unsigned ps_setup_v(char* file,
         NEW_AUX_ENT(1, AT_PHENT, sizeof (Elf32_Phdr));
         NEW_AUX_ENT(2, AT_PHNUM, exec->e_phnum);
 		//interp加载基址,如果就是/lib/ld-linux.so.2或静态链接可执行文件，则为0
-        NEW_AUX_ENT(3, AT_BASE, exec->interp_load_addr);
+        NEW_AUX_ENT(3, AT_BASE, exec->interp_bias);
         NEW_AUX_ENT(4, AT_FLAGS, 0);
         NEW_AUX_ENT(5, AT_ENTRY, exec->e_entry);//原程序入口
         NEW_AUX_ENT(6, AT_UID, 0);
@@ -296,7 +296,8 @@ int sys_execve(const char* file, char** argv, char** envp)
     strcpy(file_name, file);
 
     cleanup();
-    eip = elf_map(file_name, &fmt);
+    elf_map(file_name, &fmt);
+    eip = fmt.interp_load_addr;
     if (!eip) {
         printk("fatal error: file %s not found!\n", file);
         asm("hlt");
