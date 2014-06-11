@@ -56,15 +56,17 @@
 		<Folder
 			Name="Source Files"
 			Filters="*.c;*.C;*.cc;*.cpp;*.cp;*.cxx;*.c++;*.prg;*.pas;*.dpr;*.asm;*.s;*.bas;*.java;*.cs;*.sc;*.e;*.cob;*.html;*.rc;*.tcl;*.py;*.pl;*.d;*.m;*.mm;*.go">
-			<F N="cat.c"/>
+			<F N="src/cat.c"/>
 			<F N="crt0.s"/>
-			<F N="../lib/klib.c"/>
-			<F N="ls.c"/>
-			<F N="run.c"/>
-			<F N="sh.c"/>
-			<F N="syscall.c"/>
-			<F N="test.c"/>
-			<F N="uname.c"/>
+			<F N="src/ls.c"/>
+			<F N="src/mkdir.c"/>
+			<F N="src/pwd.c"/>
+			<F N="src/reboot.c"/>
+			<F N="src/rmdir.c"/>
+			<F N="src/run.c"/>
+			<F N="src/sh.c"/>
+			<F N="src/test.c"/>
+			<F N="src/uname.c"/>
 		</Folder>
 		<Folder
 			Name="Header Files"

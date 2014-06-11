@@ -38,7 +38,7 @@ static void ps_get_argc_envc(const char* file,
     }
 
     *argv_len = *envp_len = 0;
-    *argv_len = *argv_len + 1;
+    //*argv_len = *argv_len + 1;
     if (argv) {
         tmp = argv[i];
         while (tmp && *tmp) {
@@ -66,9 +66,9 @@ static char** ps_save_argv(const char* file, char** argv, unsigned argc )
     }
 
     ret = kmalloc(argc*sizeof(char*));
-    ret[0] = strdup(file);
-    for (i = 0; i < (argc-1); i++) {
-        ret[i+1] = strdup(argv[i]);
+    //ret[0] = strdup(file);
+    for (i = 0; i < (argc); i++) {
+        ret[i] = strdup(argv[i]);
     }
 
     return ret;
