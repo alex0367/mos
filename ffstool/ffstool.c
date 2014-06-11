@@ -205,6 +205,7 @@ int main (int argc, char *argv[])
 				enum_dir("../user/bin", user_program_callback, "/bin/");
                 enum_dir("../user/lib", user_program_callback, "/lib/");
 				enum_dir("../user/etc", user_program_callback, "/etc/");
+				enum_dir("../user/dev", user_program_callback, "/dev/");
 			}
             printf("files under /bin\n");
 			test_list("/bin");
@@ -212,7 +213,7 @@ int main (int argc, char *argv[])
             test_list("/lib");
 			printf("files under /etc\n");
             test_list("/etc");
-
+			
 
 		}
 

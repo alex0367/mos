@@ -12,13 +12,15 @@ static void cleanup()
     int i = 0;
 
     for (i = 0; i < MAX_FD; i++) {
-        if (cur->fds[i].flag != 0 && 
-            cur->fds[i].file != INODE_STD_IN &&
-            cur->fds[i].file != INODE_STD_OUT &&
-            cur->fds[i].file != INODE_STD_ERR) {
+        if (cur->fds[i].flag != 0) {
             fs_close(i);
         }
     }
+
+    // fd 0, 1, 2
+    fs_open("/dev/kb0");
+    fs_open("/dev/tty0");
+    fs_open("/dev/tty0");
 
     ps_cleanup_all_user_map(cur);
 
@@ -331,6 +333,8 @@ static void user_setup_enviroment()
 
 void user_first_process_run()
 {
+    task_struct* task = CURRENT_TASK();
+
     user_setup_enviroment();
 
 }
