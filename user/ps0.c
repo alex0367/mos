@@ -25,6 +25,8 @@ static void cleanup()
     ps_cleanup_all_user_map(cur);
 
     cur->user.heap_top = USER_HEAP_BEGIN;
+    cur->user.zone_top = USER_ZONE_BEGIN;
+    cur->user.region_head = 0;
 }
 
 static void ps_get_argc_envc(const char* file, 
