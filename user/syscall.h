@@ -48,4 +48,5 @@ DECLEAR_SYSCALL2(creat, const char*, path, unsigned, mode);
 DECLEAR_SYSCALL1(rmdir, const char*, path);
 DECLEAR_SYSCALL2(mkdir, const char*, path, unsigned, mode);
 DECLEAR_SYSCALL1(reboot, unsigned, cmd);
+DECLEAR_SYSCALL0(pause);
 #endif

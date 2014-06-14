@@ -115,3 +115,4 @@ DEFINE_SYSCALL2(creat, const char*, path, unsigned, mode);
 DEFINE_SYSCALL1(rmdir, const char*, path);
 DEFINE_SYSCALL2(mkdir, const char*, path, unsigned, mode);
 DEFINE_SYSCALL1(reboot, unsigned, cmd);
+DEFINE_SYSCALL0(pause);

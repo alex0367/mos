@@ -23,6 +23,7 @@ void main()
 				execve("/bin/sh", 0, 0);
 			}
 		}
+        pause();
 		sched_yield();
     }
 }
