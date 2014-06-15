@@ -17,9 +17,10 @@ ASFLAGS	= -f elf32
 LDFILE	= -m elf_i386 -T link.ld 
 LDFLAGS	= $(LDFILE)
 LIBFLAG = -Llib -lsys
-#TARGETS = sh run ls  uname cat pwd mkdir rmdir reboot test
-SRC = $(wildcard src/*.c)
-TARGET = $(patsubst src/%.c,%.o,$(SRC))
+TARGET = sh.o run.o ls.o
+#ls  uname cat pwd mkdir rmdir reboot test
+#SRC = $(wildcard src/*.c)
+#TARGET = $(patsubst src/%.c,%.o,$(SRC))
 LIBS	= lib.o \
 	syscall.o
 
@@ -36,8 +37,6 @@ clib: $(LIBS)
 	$(LD) -shared --whole-archive -o lib/libsys.so libsys.a
 
 folder:
-	echo $(SRC)
-	echo $(TARGET)
 	-mkdir bin
 	-mkdir lib
 
