@@ -47,8 +47,8 @@ void _kfree(void* buf, const char* f, int line);
 void* mmap(void* addr, unsigned len, unsigned prot, unsigned flag, unsigned fd, unsigned pg_offset);
 int munmap(void* addr, unsigned len);
 #elif MACOS
-#define kmalloc(size) _kmalloc(size, __func__, __LINE__)
-#define kfree(buf) _kfree(buf, __func__, __LINE__)
+#define kmalloc(size) malloc(size)
+#define kfree(buf) free(buf)
 #include <sys/mman.h>
 #endif
 
@@ -66,6 +66,7 @@ typedef struct _fd_type
 	};
 	unsigned file_off;
 	unsigned flag;
+	char *path;
 }fd_type;
 typedef struct _task_struct
 {
@@ -99,5 +100,11 @@ void printk(char* msg, ...);
 #define vmalloc(page_count) malloc(page_count*4096)
 #define vmfree(addr, page_count) free(addr)
 
+void* file_cache_find(char* path);
+
+int file_cache_read(void* cachefd, unsigned off, void* buf, unsigned len);
+
+
+char *sys_getcwd(char *buf, unsigned size);
 
 #endif
