@@ -213,12 +213,44 @@ int main (int argc, char *argv[])
             test_list("/lib");
 			printf("files under /etc\n");
             test_list("/etc");
-			
+		}else if(!strcmp(argv[1], "log")){
+			int ffs_fd;
+			FILE* local_fd;
+			char *buf = 0;
+			unsigned size = 0, readed = 0;
+			task_struct* cur = CURRENT_TASK();
+			ffs_attach(b);
+			vfs_trying_to_mount_root();
 
+			ffs_fd = fs_open("/krn.log");
+			if (ffs_fd == -1) {
+				printf("No krn.log!\n");
+				goto DONE;
+			}
+			
+			size = vfs_get_size( cur->fds[ffs_fd].file );
+			printf("sizeof krn.log %d\n", size);
+			buf = malloc(size);
+
+			local_fd = fopen("../krn.log", "a");
+			fseek(local_fd, 0, SEEK_END);
+
+			readed = fs_read(ffs_fd, 0, buf, size);
+			printf("read from ffs size %d\n", readed);
+			fs_close(ffs_fd);
+			
+			fs_delete("/krn.log");
+
+			fwrite(buf, size, 1, local_fd);
+			fflush(local_fd);
+
+			free(buf);
+			fclose(local_fd);
 		}
 
-	}
 
+	}
+DONE:
 	delete_fileblock(b);
 
     return(0);

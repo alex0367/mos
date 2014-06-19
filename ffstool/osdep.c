@@ -13,6 +13,23 @@ typedef struct _mm_block
 	char buf[0];
 }mm_block;
 
+
+void* file_cache_find(char* path)
+{
+	return 0;
+}
+
+int file_cache_read(void* cachefd, unsigned off, void* buf, unsigned len)
+{
+	return 0;
+}
+
+char *sys_getcwd(char *buf, unsigned size)
+{
+	strcpy(buf, "/");
+	return buf;
+}
+
 void* _kmalloc(unsigned size, const char* function, int line)
 {
 	mm_block* ret = malloc(size + 4);
