@@ -17,7 +17,7 @@ ASFLAGS	= -f elf32
 LDFILE	= -m elf_i386 -T link.ld 
 LDFLAGS	= $(LDFILE)
 LIBFLAG = -Llib -lsys
-TARGET = sh.o run.o ls.o quota.o
+TARGET = sh.o run.o quota.o
 #ls  uname cat pwd mkdir rmdir reboot test
 #SRC = $(wildcard src/*.c)
 #TARGET = $(patsubst src/%.c,%.o,$(SRC))
