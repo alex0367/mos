@@ -70,11 +70,11 @@ static char** ps_save_argv(const char* file, char** argv, unsigned argc )
     ret = kmalloc(argc*sizeof(char*));
     //ret[0] = strdup(file);
     #ifdef __VERBOS_SYSCALL__
-    printk("execve: ");
+    klog("execve: ");
     #endif
     for (i = 0; i < (argc); i++) {
         #ifdef __VERBOS_SYSCALL__
-        printf("%s ", argv[i]);
+        klog_printf("%s ", argv[i]);
         #endif
         ret[i] = strdup(argv[i]);
     }
