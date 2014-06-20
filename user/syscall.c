@@ -116,3 +116,4 @@ DEFINE_SYSCALL1(rmdir, const char*, path);
 DEFINE_SYSCALL2(mkdir, const char*, path, unsigned, mode);
 DEFINE_SYSCALL1(reboot, unsigned, cmd);
 DEFINE_SYSCALL0(pause);
+DEFINE_SYSCALL1(quota, struct krnquota*, q);
