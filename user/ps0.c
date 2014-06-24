@@ -12,15 +12,12 @@ static void cleanup()
     int i = 0;
 
     for (i = 0; i < MAX_FD; i++) {
-        if (cur->fds[i].flag != 0) {
+        if (cur->fds[i].flag & fd_flag_closeexec) {
             fs_close(i);
         }
     }
 
-    // fd 0, 1, 2
-    fs_open("/dev/kb0");
-    fs_open("/dev/tty0");
-    fs_open("/dev/tty0");
+
 
     ps_cleanup_all_user_map(cur);
 
@@ -338,6 +335,10 @@ static void user_setup_enviroment()
 {
     unsigned esp0 = (unsigned)CURRENT_TASK() + PAGE_SIZE;
     ps_update_tss(esp0);
+    // fd 0, 1, 2
+    fs_open("/dev/kb0");
+    fs_open("/dev/tty0");
+    fs_open("/dev/tty0");
     sys_execve("/bin/run", 0, 0);
 }
 
