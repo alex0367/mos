@@ -66,19 +66,10 @@ static char** ps_save_argv(const char* file, char** argv, unsigned argc )
 
     ret = kmalloc(argc*sizeof(char*));
     //ret[0] = strdup(file);
-    #ifdef __VERBOS_SYSCALL__
-    klog("execve: ");
-    #endif
     for (i = 0; i < (argc); i++) {
-        #ifdef __VERBOS_SYSCALL__
-        klog_printf("%s ", argv[i]);
-        #endif
         ret[i] = strdup(argv[i]);
     }
 
-    #ifdef __VERBOS_SYSCALL__
-    printf("\n");
-    #endif
 
     return ret;
 }
@@ -294,6 +285,8 @@ int sys_execve(const char* file, char** argv, char** envp)
     char** s_envp = 0;
     mos_binfmt fmt = {0};
 
+
+
     if (!file) {
         printk("fatal error: trying to execvp empty file!\n");
         return -1;
@@ -305,6 +298,14 @@ int sys_execve(const char* file, char** argv, char** envp)
     s_envp = ps_save_envp(envp, envc);
 
     strcpy(file_name, file);
+
+    #ifdef __VERBOS_SYSCALL__
+    klog("execve(%s, [");
+    for (i = 0; i < argc; i++) {
+        klog_printf("%s ", argv[i]);
+    }
+    klog_printf("]\n");
+#endif
 
     cleanup();
     elf_map(file_name, &fmt);
@@ -334,12 +335,14 @@ int sys_execve(const char* file, char** argv, char** envp)
 static void user_setup_enviroment()
 {
     unsigned esp0 = (unsigned)CURRENT_TASK() + PAGE_SIZE;
+    struct stat s;
     ps_update_tss(esp0);
     // fd 0, 1, 2
     fs_open("/dev/kb0");
     fs_open("/dev/tty0");
     fs_open("/dev/tty0");
-    sys_execve("/bin/run", 0, 0);
+
+    sys_execve("/bin/run", 0, 0); 
 }
 
 
