@@ -335,7 +335,6 @@ int sys_execve(const char* file, char** argv, char** envp)
 static void user_setup_enviroment()
 {
     unsigned esp0 = (unsigned)CURRENT_TASK() + PAGE_SIZE;
-    struct stat s;
     ps_update_tss(esp0);
     // fd 0, 1, 2
     fs_open("/dev/kb0");
