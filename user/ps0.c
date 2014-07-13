@@ -5,6 +5,7 @@
 #include <ps/elf.h>
 #include <mm/mm.h>
 #include <config.h>
+#include <syscall/unistd.h>
 
 static void cleanup()
 {
@@ -332,6 +333,16 @@ int sys_execve(const char* file, char** argv, char** envp)
     return 0;
 }
 
+static void run_if_exist(char* path)
+{
+    struct stat s;
+    char *argv[2];
+    argv[0] = path;
+    argv[1] = 0;
+    if (fs_stat(path,&s) != -1) {
+        sys_execve(path, argv, 0);
+    }
+}
 static void user_setup_enviroment()
 {
     unsigned esp0 = (unsigned)CURRENT_TASK() + PAGE_SIZE;
@@ -341,7 +352,9 @@ static void user_setup_enviroment()
     fs_open("/dev/tty0");
     fs_open("/dev/tty0");
 
-    sys_execve("/bin/run", 0, 0); 
+    run_if_exist("/bin/bash");
+    run_if_exist("/bin/run");
+    run_if_exist("/bin/idle");
 }
 
 
