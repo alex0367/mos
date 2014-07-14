@@ -3,9 +3,11 @@
 #include <int/int.h>
 #include <lib/klib.h>
 #include <ps/elf.h>
+#include <ps/lock.h>
 #include <mm/mm.h>
 #include <config.h>
 #include <syscall/unistd.h>
+
 
 static void cleanup()
 {
@@ -287,7 +289,6 @@ int sys_execve(const char* file, char** argv, char** envp)
     mos_binfmt fmt = {0};
 
 
-
     if (!file) {
         printk("fatal error: trying to execvp empty file!\n");
         return -1;
@@ -306,8 +307,7 @@ int sys_execve(const char* file, char** argv, char** envp)
         klog_printf("%s ", argv[i]);
     }
     klog_printf("]\n");
-#endif
-
+    #endif
     cleanup();
     elf_map(file_name, &fmt);
     eip = fmt.interp_load_addr;
@@ -320,7 +320,6 @@ int sys_execve(const char* file, char** argv, char** envp)
         mm_add_dynamic_map(esp_buttom+i*PAGE_SIZE, 0, PAGE_ENTRY_USER_DATA);
         memset(esp_buttom+i*PAGE_SIZE, 0, PAGE_SIZE);
     }
-
 
     esp_top = ps_setup_v(file_name, argc,s_argv,envc,s_envp,esp_top, &fmt);
 
