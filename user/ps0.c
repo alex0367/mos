@@ -7,6 +7,7 @@
 #include <mm/mm.h>
 #include <config.h>
 #include <syscall/unistd.h>
+#include <mm/mmap.h>
 
 
 static void cleanup()
@@ -25,8 +26,8 @@ static void cleanup()
     ps_cleanup_all_user_map(cur);
 
     cur->user.heap_top = USER_HEAP_BEGIN;
-    cur->user.zone_top = USER_ZONE_BEGIN;
-    cur->user.region_head = 0;
+    vm_destroy(cur->user.vm);
+    cur->user.vm = vm_create();
 }
 
 static void ps_get_argc_envc(const char* file, 
@@ -316,10 +317,11 @@ int sys_execve(const char* file, char** argv, char** envp)
         asm("hlt");
     }
 
-    for (i = 0; i < USER_STACK_PAGES; i++) {
-        mm_add_dynamic_map(esp_buttom+i*PAGE_SIZE, 0, PAGE_ENTRY_USER_DATA);
-        memset(esp_buttom+i*PAGE_SIZE, 0, PAGE_SIZE);
-    }
+    do_mmap(esp_buttom, USER_STACK_PAGES*PAGE_SIZE, 0, 0, -1, 0);
+//  for (i = 0; i < USER_STACK_PAGES; i++) {
+//      mm_add_dynamic_map(esp_buttom+i*PAGE_SIZE, 0, PAGE_ENTRY_USER_DATA);
+//      memset(esp_buttom+i*PAGE_SIZE, 0, PAGE_SIZE);
+//  }
 
     esp_top = ps_setup_v(file_name, argc,s_argv,envc,s_envp,esp_top, &fmt);
 
