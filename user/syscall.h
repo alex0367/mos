@@ -38,9 +38,7 @@ DECLEAR_SYSCALL0(getpid);
 DECLEAR_SYSCALL1(uname, struct utsname*, utname);
 DECLEAR_SYSCALL0(sched_yield);
 DECLEAR_SYSCALL2(stat, const char*, path, struct stat*, buf);
-DECLEAR_SYSCALL1(opendir, const char*, path);
-DECLEAR_SYSCALL1(closedir, DIR, dir);
-DECLEAR_SYSCALL2(readdir, DIR, dir, struct dirent*, ent);
+DECLEAR_SYSCALL2(readdir, unsigned, dir, struct dirent*, ent);
 DECLEAR_SYSCALL1(brk, unsigned, addr);
 DECLEAR_SYSCALL1(time, time_t*, t);
 DECLEAR_SYSCALL2(getcwd, const char*, name, unsigned, len);
@@ -50,4 +48,6 @@ DECLEAR_SYSCALL2(creat, const char*, path, unsigned, mode);
 DECLEAR_SYSCALL1(rmdir, const char*, path);
 DECLEAR_SYSCALL2(mkdir, const char*, path, unsigned, mode);
 DECLEAR_SYSCALL1(reboot, unsigned, cmd);
+DECLEAR_SYSCALL0(pause);
+DECLEAR_SYSCALL1(quota, struct krnquota*, q);
 #endif

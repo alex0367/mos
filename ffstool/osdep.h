@@ -26,9 +26,9 @@ typedef struct _semaphore
 unsigned GetCurrentTime();
 #endif
 
-typedef void (*enum_dir_callback)(char* name);
+typedef void (*enum_dir_callback)(char* name, char* dst_dir);
 
-void enum_dir(char* dir, enum_dir_callback fn);
+void enum_dir(char* dir, enum_dir_callback fn, char* dst_dir);
 
 void sema_init(semaphore* lock, char * name, int init_state);
 
@@ -47,16 +47,31 @@ void _kfree(void* buf, const char* f, int line);
 void* mmap(void* addr, unsigned len, unsigned prot, unsigned flag, unsigned fd, unsigned pg_offset);
 int munmap(void* addr, unsigned len);
 #elif MACOS
-#define kmalloc(size) _kmalloc(size, __func__, __LINE__)
-#define kfree(buf) _kfree(buf, __func__, __LINE__)
+#define kmalloc(size) malloc(size)
+#define kfree(buf) free(buf)
 #include <sys/mman.h>
 #endif
 
+#define fd_flag_isdir 0x00000001
+#define fd_flag_readonly 0x00000002
+#define fd_flag_create 0x00000004
+#define fd_flag_append 0x00000008
+#define fd_flag_used	0x80000000
 
+typedef struct _fd_type
+{
+	union{
+		unsigned	file;
+		unsigned		dir;
+	};
+	unsigned file_off;
+	unsigned flag;
+	char *path;
+}fd_type;
 typedef struct _task_struct
 {
-	unsigned fds[256];
-	unsigned file_off[256];
+
+	fd_type fds[256];
 	semaphore fd_lock;
 }task_struct;
 
@@ -85,5 +100,11 @@ void printk(char* msg, ...);
 #define vmalloc(page_count) malloc(page_count*4096)
 #define vmfree(addr, page_count) free(addr)
 
+void* file_cache_find(char* path);
+
+int file_cache_read(void* cachefd, unsigned off, void* buf, unsigned len);
+
+
+char *sys_getcwd(char *buf, unsigned size);
 
 #endif

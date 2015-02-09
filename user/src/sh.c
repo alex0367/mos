@@ -64,20 +64,26 @@ static int run_cmd(char* cmd, char* arg_line)
 	if (pid){
 		status = waitpid(pid, 0, 0);
 	}else{
-        char* argv[2];
+        char* argv[3];
+	char* env[2];
 		if (arg_line) {
-			argv[0] = arg_line;
-			argv[1] = '\0';
+			argv[0] = path;
+			argv[1] = arg_line;
+			argv[2] = '\0';
+			env[0] = "PATH=/bin:/local/bin:/usr/bin";
+			env[1] = '\0';
 			execve(path, argv, 0);
 		}else{
-			execve(path, 0, 0);
+			argv[0] = path;
+			argv[1] = '\0';
+			execve(path, argv, 0);
 		}
 		
 	}
 	return status;
 }
 
-void main()
+void main(int argc, char** argv, char** env)
 {
 	char cmd[80] = {0};
 	int idx = 0;

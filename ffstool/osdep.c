@@ -13,6 +13,23 @@ typedef struct _mm_block
 	char buf[0];
 }mm_block;
 
+
+void* file_cache_find(char* path)
+{
+	return 0;
+}
+
+int file_cache_read(void* cachefd, unsigned off, void* buf, unsigned len)
+{
+	return 0;
+}
+
+char *sys_getcwd(char *buf, unsigned size)
+{
+	strcpy(buf, "/");
+	return buf;
+}
+
 void* _kmalloc(unsigned size, const char* function, int line)
 {
 	mm_block* ret = malloc(size + 4);
@@ -38,7 +55,7 @@ void print_quota()
 	printf("quota %x, highest %x\n", quota, high_quota);
 }
 
-void enum_dir(char* name, enum_dir_callback fn)
+void enum_dir(char* name, enum_dir_callback fn, char* dst_dir)
 {
 	DIR* d = opendir(name);
 	struct dirent * entry;
@@ -53,7 +70,7 @@ void enum_dir(char* name, enum_dir_callback fn)
 		  continue;
 
 
-		fn(entry->d_name);
+		fn(entry->d_name, dst_dir);
 	}
 	
 	closedir(d);

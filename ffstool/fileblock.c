@@ -57,7 +57,7 @@ static int file_read(void* file, unsigned sector, void* buf, unsigned len);
 static int file_write(void* file, unsigned sector, void* buf, unsigned len);
 static int file_cached_read(void* aux, unsigned sector, void* buf, unsigned len);
 static int file_cached_write(void* aux, unsigned sector, void* buf, unsigned len);
-static void file_cache_flush(void* aux);
+static void file_cached_flush(void* aux);
 
 block* create_fileblock()
 {
@@ -96,7 +96,7 @@ block* create_fileblock()
 
 void delete_fileblock(block* b)
 {
-	file_cache_flush(b->aux);
+	file_cached_flush(b->aux);
 	kfree(block_cache);
 #ifndef WIN32
     fclose(b->aux);
@@ -106,7 +106,7 @@ void delete_fileblock(block* b)
 	free(b);
 }
 
-static int file_cache_find(unsigned sector)
+static int file_cached_find(unsigned sector)
 {
 	int i = 0;
 
@@ -119,7 +119,7 @@ static int file_cache_find(unsigned sector)
 	return -1;
 }
 
-static int file_cache_find_oldest()
+static int file_cached_find_oldest()
 {
 	int i = 0;
 	int oldest = 0;
@@ -150,7 +150,7 @@ static int file_cached_read(void* aux, unsigned sector, void* buf, unsigned len)
 	if (cache_index == -1){
 		cache_miss++;
 		file_read(aux, sector, buf, len);
-		cache_index = file_cache_find_oldest();
+		cache_index = file_cached_find_oldest();
 
 		if (block_cache[cache_index].sector >= 0)
 			file_write(aux, block_cache[cache_index].sector, block_cache[cache_index].buf, len);
@@ -170,11 +170,11 @@ static int file_cached_read(void* aux, unsigned sector, void* buf, unsigned len)
 
 static int file_cached_write(void* aux, unsigned sector, void* buf, unsigned len)
 {
-	int cache_index = file_cache_find(sector);
+	int cache_index = file_cached_find(sector);
 	total_touch++;
 	if (cache_index == -1){
 		cache_miss++;
-		cache_index = file_cache_find_oldest();
+		cache_index = file_cached_find_oldest();
 
 		if (block_cache[cache_index].sector >= 0)
 			file_write(aux, block_cache[cache_index].sector, block_cache[cache_index].buf, len);
@@ -192,7 +192,7 @@ static int file_cached_write(void* aux, unsigned sector, void* buf, unsigned len
     return len;
 }
 
-static void file_cache_flush(void* aux)
+static void file_cached_flush(void* aux)
 {
 	int i = 0;
 
