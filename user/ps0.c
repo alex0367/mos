@@ -44,7 +44,7 @@ static void ps_get_argc_envc(const char* file,
     //*argv_len = *argv_len + 1;
     if (argv) {
         tmp = argv[i];
-        while (tmp && *tmp) {
+        while (argv[i] && *argv[i]) {
             *argv_len = *argv_len + 1;
             tmp = argv[++i];
         }
@@ -53,7 +53,7 @@ static void ps_get_argc_envc(const char* file,
     i = 0;
     if (envp) {
         tmp = envp[i];
-        while (tmp && *tmp) {
+        while (envp[i] && *envp[i]) {
             *envp_len = *envp_len + 1;
             tmp = envp[++i];
         }
