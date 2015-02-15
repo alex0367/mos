@@ -4,6 +4,9 @@
 #include <sys/types.h>
 #include <dirent.h>
 #endif
+
+#include <fs/vfs.h>
+
 #if defined WIN32 ||  MACOS
 static unsigned quota = 0;
 static unsigned high_quota = 0;
@@ -14,15 +17,15 @@ typedef struct _mm_block
 }mm_block;
 
 
-void* file_cache_find(char* path)
-{
-	return 0;
-}
-
-int file_cache_read(void* cachefd, unsigned off, void* buf, unsigned len)
-{
-	return 0;
-}
+//void* file_cache_find(char* path)
+//{
+//	return 0;
+//}
+//
+//int file_cache_read(void* cachefd, unsigned off, void* buf, unsigned len)
+//{
+//	return 0;
+//}
 
 char *sys_getcwd(char *buf, unsigned size)
 {
@@ -55,27 +58,7 @@ void print_quota()
 	printf("quota %x, highest %x\n", quota, high_quota);
 }
 
-void enum_dir(char* name, enum_dir_callback fn, char* dst_dir)
-{
-	DIR* d = opendir(name);
-	struct dirent * entry;
-	
-	if(!d || !fn)
-	  return;
-	
-	while ( (entry = readdir(d)) ){
-		if (!strcmp(entry->d_name, "."))
-		  continue;
-		if (!strcmp(entry->d_name, ".."))
-		  continue;
 
-
-		fn(entry->d_name, dst_dir);
-	}
-	
-	closedir(d);
-
-}
 
 #ifdef WIN32
 void sema_init(semaphore* lock, char * name, int init_state)
@@ -141,7 +124,64 @@ int munmap(void* addr, unsigned len)
 	return ( VirtualFree(addr, len, MEM_DECOMMIT) == TRUE );
 }
 
+long __sync_add_and_fetch(long* v, long c)
+{
+    return InterlockedAdd(v, c);
+}
+
+void enum_dir(char* name, enum_dir_callback fn, char* dst_dir)
+{
+    WIN32_FIND_DATAA findData;
+    HANDLE dir;
+    char pwd[MAX_PATH+1] = {0};
+
+    GetCurrentDirectoryA(MAX_PATH, pwd);
+    strcat(pwd, "/");
+    strcat(pwd, name);
+    strcat(pwd, "/*.*");
+    dir = FindFirstFileA(pwd, &findData);
+    if (dir != INVALID_HANDLE_VALUE)
+    {
+        do
+        {
+            if (!strcmp(findData.cFileName, "."))
+                continue;
+            if (!strcmp(findData.cFileName, ".."))
+                continue;
+
+
+            fn(findData.cFileName, dst_dir);
+        }
+        while (FindNextFileA(dir, &findData));
+    }
+}
+
+
+
 #elif MACOS
+void enum_dir(char* name, enum_dir_callback fn, char* dst_dir)
+{
+    DIR* d = opendir(name);
+    struct dirent * entry;
+
+    if (!d || !fn)
+        return;
+
+    while ((entry = readdir(d)))
+    {
+        if (!strcmp(entry->d_name, "."))
+            continue;
+        if (!strcmp(entry->d_name, ".."))
+            continue;
+
+
+        fn(entry->d_name, dst_dir);
+    }
+
+    closedir(d);
+
+}
+
 void sema_init(semaphore* lock, char * name, int init_state)
 {
 	// do nothing!
@@ -169,6 +209,22 @@ unsigned GetCurrentTime()
 }
 
 #endif
+
+void spinlock_init(spinlock_t lock)
+{
+}
+
+void spinlock_uninit(spinlock_t lock)
+{
+}
+
+void spinlock_lock(spinlock_t lock)
+{
+}
+
+void spinlock_unlock(spinlock_t lock)
+{
+}
 
 static task_struct* task = NULL;
 task_struct* CURRENT_TASK()
