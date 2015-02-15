@@ -5,6 +5,7 @@
 #ifdef WIN32
 #include <windows.h>
 #include <lib/list.h>
+#include <errno.h>
 typedef struct _semaphore
 {
 	HANDLE event;
@@ -42,8 +43,8 @@ void* _kmalloc(unsigned size, const char* f, int line);
 void _kfree(void* buf, const char* f, int line);
 
 #ifdef WIN32
-#define kmalloc(size) _kmalloc(size, __FUNCTION__, __LINE__)
-#define kfree(buf) _kfree(buf, __FUNCTION__, __LINE__)
+#define kmalloc(size) malloc(size)
+#define kfree(buf) free(buf)
 void* mmap(void* addr, unsigned len, unsigned prot, unsigned flag, unsigned fd, unsigned pg_offset);
 int munmap(void* addr, unsigned len);
 #elif MACOS
@@ -57,6 +58,11 @@ int munmap(void* addr, unsigned len);
 #define fd_flag_create 0x00000004
 #define fd_flag_append 0x00000008
 #define fd_flag_used	0x80000000
+
+typedef struct _spinlock
+{
+    int dummy;
+}spinlock, *spinlock_t;
 
 typedef struct _fd_type
 {
