@@ -3,8 +3,12 @@
 #include <int/int.h>
 #include <lib/klib.h>
 #include <ps/elf.h>
+#include <ps/lock.h>
 #include <mm/mm.h>
 #include <config.h>
+#include <syscall/unistd.h>
+#include <mm/mmap.h>
+
 
 static void cleanup()
 {
@@ -22,8 +26,8 @@ static void cleanup()
     ps_cleanup_all_user_map(cur);
 
     cur->user.heap_top = USER_HEAP_BEGIN;
-    cur->user.zone_top = USER_ZONE_BEGIN;
-    cur->user.region_head = 0;
+    vm_destroy(cur->user.vm);
+    cur->user.vm = vm_create();
 }
 
 static void ps_get_argc_envc(const char* file, 
@@ -40,7 +44,7 @@ static void ps_get_argc_envc(const char* file,
     //*argv_len = *argv_len + 1;
     if (argv) {
         tmp = argv[i];
-        while (tmp && *tmp) {
+        while (argv[i] && *argv[i]) {
             *argv_len = *argv_len + 1;
             tmp = argv[++i];
         }
@@ -49,7 +53,7 @@ static void ps_get_argc_envc(const char* file,
     i = 0;
     if (envp) {
         tmp = envp[i];
-        while (tmp && *tmp) {
+        while (envp[i] && *envp[i]) {
             *envp_len = *envp_len + 1;
             tmp = envp[++i];
         }
@@ -286,7 +290,6 @@ int sys_execve(const char* file, char** argv, char** envp)
     mos_binfmt fmt = {0};
 
 
-
     if (!file) {
         printk("fatal error: trying to execvp empty file!\n");
         return -1;
@@ -305,8 +308,7 @@ int sys_execve(const char* file, char** argv, char** envp)
         klog_printf("%s ", argv[i]);
     }
     klog_printf("]\n");
-#endif
-
+    #endif
     cleanup();
     elf_map(file_name, &fmt);
     eip = fmt.interp_load_addr;
@@ -315,11 +317,11 @@ int sys_execve(const char* file, char** argv, char** envp)
         asm("hlt");
     }
 
-    for (i = 0; i < USER_STACK_PAGES; i++) {
-        mm_add_dynamic_map(esp_buttom+i*PAGE_SIZE, 0, PAGE_ENTRY_USER_DATA);
-        memset(esp_buttom+i*PAGE_SIZE, 0, PAGE_SIZE);
-    }
-
+    do_mmap(esp_buttom, USER_STACK_PAGES*PAGE_SIZE, 0, 0, -1, 0);
+//  for (i = 0; i < USER_STACK_PAGES; i++) {
+//      mm_add_dynamic_map(esp_buttom+i*PAGE_SIZE, 0, PAGE_ENTRY_USER_DATA);
+//      memset(esp_buttom+i*PAGE_SIZE, 0, PAGE_SIZE);
+//  }
 
     esp_top = ps_setup_v(file_name, argc,s_argv,envc,s_envp,esp_top, &fmt);
 
@@ -332,6 +334,16 @@ int sys_execve(const char* file, char** argv, char** envp)
     return 0;
 }
 
+static void run_if_exist(char* path)
+{
+    struct stat s;
+    char *argv[2];
+    argv[0] = path;
+    argv[1] = 0;
+    if (fs_stat(path,&s) != -1) {
+        sys_execve(path, argv, 0);
+    }
+}
 static void user_setup_enviroment()
 {
     unsigned esp0 = (unsigned)CURRENT_TASK() + PAGE_SIZE;
@@ -341,7 +353,9 @@ static void user_setup_enviroment()
     fs_open("/dev/tty0");
     fs_open("/dev/tty0");
 
-    sys_execve("/bin/run", 0, 0); 
+    run_if_exist("/bin/bash");
+    run_if_exist("/bin/run");
+    run_if_exist("/bin/idle");
 }
 
 

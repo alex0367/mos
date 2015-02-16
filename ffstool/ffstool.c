@@ -3,6 +3,7 @@
 #include <fileblock.h>
 #include <fs/ffs.h>
 #include <fs/namespace.h>
+#include <syscall//unistd.h>
 #include <osdep.h>
 
 static void test_list(char* path)
@@ -40,7 +41,7 @@ static void test_create()
 
 static void test_read()
 {
-	unsigned int fd = fs_open("/readme.txt");
+	unsigned int fd = fs_open("/bin/bash");
 	char* buf = 0;
 	int i = 0;
 
@@ -159,7 +160,11 @@ static void copy_user_program(char *name, char* dst_dir)
     strcpy(_dst, dst_dir);
 	strcpy(ffs_name, dst_dir);
 	strcat(ffs_name, name);
+#ifdef WIN32
+    strcpy(local_name, "../../user");
+#else
 	strcpy(local_name, "../user");
+#endif
     strcat(local_name, dst_dir);
 	strcat(local_name, name);
 
@@ -192,6 +197,7 @@ int main (int argc, char *argv[])
 
 	vfs_init();
 	mount_init();
+    file_cache_init();
 
 	if (argc == 1) {
 		run_cmd(b);
@@ -202,11 +208,19 @@ int main (int argc, char *argv[])
 			ffs_attach(b);
 			vfs_trying_to_mount_root();
 			{
+#ifdef WIN32
+                enum_dir("../../user/bin", user_program_callback, "/bin/");
+                enum_dir("../../user/lib", user_program_callback, "/lib/");
+                enum_dir("../../user/etc", user_program_callback, "/etc/");
+                enum_dir("../../user/dev", user_program_callback, "/dev/");
+                enum_dir("../../user/tmp", user_program_callback, "/tmp/");
+#else
 				enum_dir("../user/bin", user_program_callback, "/bin/");
                 enum_dir("../user/lib", user_program_callback, "/lib/");
 				enum_dir("../user/etc", user_program_callback, "/etc/");
 				enum_dir("../user/dev", user_program_callback, "/dev/");
 				enum_dir("../user/tmp", user_program_callback, "/tmp/");
+#endif
 			}
             printf("files under /bin\n");
 			test_list("/bin");
@@ -214,6 +228,7 @@ int main (int argc, char *argv[])
             test_list("/lib");
 			printf("files under /etc\n");
             test_list("/etc");
+            test_read();
 		}else if(!strcmp(argv[1], "log")){
 			int ffs_fd;
 			FILE* local_fd;
