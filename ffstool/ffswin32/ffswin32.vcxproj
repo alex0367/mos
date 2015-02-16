@@ -79,6 +79,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\..\fs\cache.c" />
+    <ClCompile Include="..\..\fs\ext2.c" />
     <ClCompile Include="..\..\fs\ffs.c" />
     <ClCompile Include="..\..\fs\mount.c" />
     <ClCompile Include="..\..\fs\namespace.c" />
@@ -91,6 +92,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\drivers\block.h" />
+    <ClInclude Include="..\..\fs\ext2.h" />
     <ClInclude Include="..\..\fs\ffs.h" />
     <ClInclude Include="..\..\fs\mount.h" />
     <ClInclude Include="..\..\fs\namespace.h" />

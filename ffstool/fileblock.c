@@ -59,8 +59,10 @@ static int file_cached_read(void* aux, unsigned sector, void* buf, unsigned len)
 static int file_cached_write(void* aux, unsigned sector, void* buf, unsigned len);
 static void file_cached_flush(void* aux);
 
-block* create_fileblock()
+block* create_fileblock(char* img)
 {
+	char imgFile[256] = { 0 };
+
     block* ret = malloc(sizeof(*ret));
 	int i = 0;
 
@@ -74,14 +76,18 @@ block* create_fileblock()
 	}
 
 #ifdef WIN32
-	ret->aux = CreateFileA("../../ffs.img", GENERIC_READ | GENERIC_WRITE,
+	strcpy(imgFile, "../../");
+	strcat(imgFile, img);
+	ret->aux = CreateFileA(imgFile, GENERIC_READ | GENERIC_WRITE,
 		FILE_SHARE_READ | FILE_SHARE_WRITE,
 		NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL,
 		NULL);
 	ret->sector_size = (GetFileSize(ret->aux, NULL) - BLOCK_OFFSET) / BLOCK_SECTOR_SIZE;
 	SetFilePointer(ret->aux, BLOCK_OFFSET, 0, FILE_BEGIN);
 #else
-	ret->aux = (void*)fopen("../ffs.img", "r+");
+	strcpy(imgFile, "../");
+	strcat(imgFile, img);
+	ret->aux = (void*)fopen(imgFile, "r+");
     fseek(ret->aux, 0, SEEK_END);
 	ret->sector_size = (ftell(ret->aux) - BLOCK_OFFSET) / BLOCK_SECTOR_SIZE;
 	fseek(ret->aux, 0, SEEK_SET);

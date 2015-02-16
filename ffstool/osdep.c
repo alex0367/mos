@@ -243,9 +243,11 @@ void printk(char* msg, ...)
 {
 	va_list ap;
 	char buf[256] = { 0 };
-
+	char* tmp = buf;
+	strcpy(tmp, "[mos]");
+	tmp += strlen("[mos]");
 	va_start(ap, msg);
-	wvsprintfA(buf, msg, ap);
+	wvsprintfA(tmp, msg, ap);
 	va_end(ap);
 
 	OutputDebugStringA(buf);
