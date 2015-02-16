@@ -5,10 +5,17 @@ ifeq ($(shell uname),Linux)
 	LD              = ld
 	AR 				= ar
 else
+ifeq ($(shell uname),Darwin)
 	CC              = /opt/local/bin/i386-elf-gcc
 	ASM     		= /opt/local/bin/nasm
 	LD              = /opt/local/bin/i386-elf-ld
 	AR				= /opt/local/bin/i386-elf-ar
+else
+	CC				= i386-elf-gcc
+	ASM				= nasm
+	LD				= i386-elf-ld
+	ar				= i386-elf-ar
+endif
 endif
 
 CSTRICT	= -Werror=uninitialized
