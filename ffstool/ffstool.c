@@ -2,9 +2,12 @@
 #include <stdlib.h>
 #include <fileblock.h>
 #include <fs/ffs.h>
+#include <fs/ext2.h>
 #include <fs/namespace.h>
 #include <syscall//unistd.h>
 #include <osdep.h>
+
+static char img[256] = { 0 };
 
 static void test_list(char* path)
 {
@@ -93,48 +96,51 @@ static void test_delete()
 	print_quota();
 }
 
+static void test_dump(char* remote, char* local)
+{
+	unsigned remote_fd = fs_open(remote);
+	FILE* local_fd = fopen(local, "wb+");
+	char* buf = 0;
+	struct stat s;
+
+
+	fs_stat(remote, &s);
+	buf = malloc(s.st_size);
+	fs_read(remote_fd, 0, buf, s.st_size);
+
+	fwrite(buf, s.st_size, 1, local_fd);
+	fflush(local_fd);
+	fclose(local_fd);
+	fs_close(remote_fd);
+}
+
 static void run_cmd(block* b)
 {
 	char c;
 	extern void report_cache();
+	if (!strcmp(img, "rootfs.img"))
+		ext2_attach(b);
+	else if (!strcmp(img, "ffs.img"))
+		ffs_attach(b);
+	else
+		return;
+	vfs_trying_to_mount_root();
+	printf("attach to file system done\n");
 	printf("pleaes input cmd:\n");
 	while (c = getchar()){
 		if (c == 'q')
 			break;
 
 		switch (c){
-		case 'f':
-			format_partition(b->aux);
-			ffs_format(b);
-			printf("format done\n");
-			break;
-		case 'a':
-			ffs_attach(b);
-			vfs_trying_to_mount_root();
-			printf("attach to file system done\n");
-			break;
 		case 'l':
 			print_quota();
 			test_list("/bin");
 			print_quota();
 			report_cache();
 			break;
-		case 'c':
-			print_quota();
-			test_create();
-			print_quota();
-			break;
 		case 'd':
-			test_delete();
-			break;
-		case 'w':
-			test_write();
-			report_cache();
-			break;
-		case 'r':
-			test_read();
-			report_cache();
-			break;
+			test_dump("/lib/libc.so.6", "libc.so.6");
+			printf("dump file /bin/bash done\n");
 		case '\n':
 			break;
 		default:
@@ -193,15 +199,18 @@ static void user_program_callback(char* name , char* dst_dir)
 
 int main (int argc, char *argv[])
 {
-    block* b = create_fileblock();
+	block* b = NULL;
 
 	vfs_init();
 	mount_init();
     file_cache_init();
 
-	if (argc == 1) {
+	if (argc == 3) {
+		strcpy(img, argv[2]);
+		b = create_fileblock(argv[2]);
 		run_cmd(b);
 	}else{
+		b = create_fileblock("ffs.img");
 		if (!strcmp(argv[1], "format")) {
 			format_partition(b->aux);
 			ffs_format(b);
