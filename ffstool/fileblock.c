@@ -101,6 +101,7 @@ void delete_fileblock(block* b)
 #ifndef WIN32
     fclose(b->aux);
 #else
+    FlushFileBuffers(b->aux);
 	CloseHandle(b->aux);
 #endif
 	free(b);
@@ -217,7 +218,7 @@ static int file_read(void* aux, unsigned sector, void* buf, unsigned len)
 	HANDLE file = (HANDLE)aux;
 	unsigned len_ = (len < BLOCK_SECTOR_SIZE) ? len : BLOCK_SECTOR_SIZE;
 	DWORD readed = 0;
-	printf("[file_read] sector %d\n", sector);
+	//printf("[file_read] sector %d\n", sector);
 	SetFilePointer(file, BLOCK_OFFSET + sector * BLOCK_SECTOR_SIZE, 0, FILE_BEGIN);
 	ReadFile(file, buf, len, &readed, NULL);
 	return readed;
@@ -238,7 +239,7 @@ static int file_write(void* aux, unsigned sector, void* buf, unsigned len)
 	HANDLE file = (HANDLE)aux;
 	unsigned len_ = (len < BLOCK_SECTOR_SIZE) ? len : BLOCK_SECTOR_SIZE;
 	DWORD writed = 0;
-	printf("[file_read] sector %d\n", sector);
+	//printf("[file_read] sector %d\n", sector);
 	SetFilePointer(file, BLOCK_OFFSET + sector * BLOCK_SECTOR_SIZE, 0, FILE_BEGIN);
 	WriteFile(file, buf, len, &writed, NULL);
 	return writed;
