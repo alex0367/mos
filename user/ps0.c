@@ -289,7 +289,6 @@ int sys_execve(const char* file, char** argv, char** envp)
     char** s_envp = 0;
     mos_binfmt fmt = {0};
 
-
     if (!file) {
         printk("fatal error: trying to execvp empty file!\n");
         return -1;
@@ -324,7 +323,6 @@ int sys_execve(const char* file, char** argv, char** envp)
 //  }
 
     esp_top = ps_setup_v(file_name, argc,s_argv,envc,s_envp,esp_top, &fmt);
-
     ps_free_v(s_argv, argc);
     ps_free_v(s_envp, envc);
     kfree(file_name);
