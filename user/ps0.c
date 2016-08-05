@@ -15,8 +15,10 @@ static void cleanup()
     task_struct* cur = CURRENT_TASK();
     int i = 0;
 
-    for (i = 0; i < MAX_FD; i++) {
-        if (cur->fds[i].flag & fd_flag_closeexec) {
+    for (i = 0; i < MAX_FD; i++)
+    {
+        if (cur->fds[i].flag & fd_flag_closeexec)
+        {
             fs_close(i);
         }
     }
@@ -30,47 +32,54 @@ static void cleanup()
     cur->user.vm = vm_create();
 }
 
-static void ps_get_argc_envc(const char* file, 
-                                 char** argv, char** envp, 
-                                 unsigned* argv_len, unsigned* envp_len)
+static void ps_get_argc_envc(const char* file,
+    char** argv, char** envp,
+    unsigned* argv_len, unsigned* envp_len)
 {
     char* tmp = 0;
     int i = 0;
-    if (!argv_len || !envp_len) {
+    if (!argv_len || !envp_len)
+    {
         return;
     }
 
     *argv_len = *envp_len = 0;
     //*argv_len = *argv_len + 1;
-    if (argv) {
+    if (argv)
+    {
         tmp = argv[i];
-        while (argv[i] && *argv[i]) {
+        while (argv[i] && *argv[i])
+        {
             *argv_len = *argv_len + 1;
             tmp = argv[++i];
         }
     }
 
     i = 0;
-    if (envp) {
+    if (envp)
+    {
         tmp = envp[i];
-        while (envp[i] && *envp[i]) {
+        while (envp[i] && *envp[i])
+        {
             *envp_len = *envp_len + 1;
             tmp = envp[++i];
         }
-    }    
+    }
 }
 
-static char** ps_save_argv(const char* file, char** argv, unsigned argc )
+static char** ps_save_argv(const char* file, char** argv, unsigned argc)
 {
     char** ret = 0;
     int i = 0;
-    if (!argc ) {
+    if (!argc)
+    {
         return 0;
     }
 
-    ret = kmalloc(argc*sizeof(char*));
+    ret = kmalloc(argc * sizeof(char*));
     //ret[0] = strdup(file);
-    for (i = 0; i < (argc); i++) {
+    for (i = 0; i < (argc); i++)
+    {
         ret[i] = strdup(argv[i]);
     }
 
@@ -82,12 +91,14 @@ static char** ps_save_envp(char** envp, unsigned envc)
 {
     int i = 0;
     char** ret = 0;
-    if (!envc) {
+    if (!envc)
+    {
         return 0;
     }
 
-    ret = kmalloc(envc*sizeof(char*));
-    for (i = 0; i < envc; i++) {
+    ret = kmalloc(envc * sizeof(char*));
+    for (i = 0; i < envc; i++)
+    {
         ret[i] = strdup(envp[i]);
     }
 
@@ -98,11 +109,13 @@ static char** ps_save_envp(char** envp, unsigned envc)
 static void ps_free_v(char** v, unsigned size)
 {
     int i = 0;
-    if (!v) {
+    if (!v)
+    {
         return;
     }
 
-    for (i = 0; i < size; i++) {
+    for (i = 0; i < size; i++)
+    {
         kfree(v[i]);
     }
     kfree(v);
@@ -140,11 +153,11 @@ but that could change... */
 #define AT_HWCAP  16    /* arch dependent hints at CPU capabilities */
 #define AT_CLKTCK   17      /* Frequency of times() */
 
-static unsigned ps_setup_v(char* file, 
-                           int argc, char** argv, 
-                           int envc, char** envp, 
-                           unsigned top,
-                           mos_binfmt* exec)
+static unsigned ps_setup_v(char* file,
+    int argc, char** argv,
+    int envc, char** envp,
+    unsigned top,
+    mos_binfmt* exec)
 {
     int i = 0;
     char* esp = (char*)(top);
@@ -156,12 +169,14 @@ static unsigned ps_setup_v(char* file,
     unsigned argvp, envpp;
     int len;
 
-    if (1) {
-        tmp_array_argv = kmalloc(argv_buf_len+4);
+    if (1)
+    {
+        tmp_array_argv = kmalloc(argv_buf_len + 4);
     }
 
-    if (1) {
-        tmp_array_env = kmalloc(env_buf_len+4);
+    if (1)
+    {
+        tmp_array_env = kmalloc(env_buf_len + 4);
     }
 
     // end marker
@@ -169,29 +184,31 @@ static unsigned ps_setup_v(char* file,
     *((unsigned*)esp) = 0;
 
     // file name
-    len = strlen(file)+1;
+    len = strlen(file) + 1;
     esp -= len;
     strcpy(esp, file);
 
 
     // env strings
-    for (i = envc-1; i >= 0; i--) {
-        int len = strlen(envp[i])+1;
+    for (i = envc - 1; i >= 0; i--)
+    {
+        int len = strlen(envp[i]) + 1;
         esp -= len;
         strcpy(esp, envp[i]);
         tmp_array_env[i] = esp;
-        esp[len-1] = '\0';
+        esp[len - 1] = '\0';
     }
     tmp_array_env[envc] = 0;
 
 
     // argv strings
-    for (i = argc-1; i >= 0; i--) {
-        int len = strlen(argv[i])+1;
+    for (i = argc - 1; i >= 0; i--)
+    {
+        int len = strlen(argv[i]) + 1;
         esp -= len;
         strcpy(esp, argv[i]);
         tmp_array_argv[i] = esp;
-        esp[len-1] = '\0';
+        esp[len - 1] = '\0';
     }
 
     tmp_array_argv[argc] = 0;
@@ -217,22 +234,24 @@ static unsigned ps_setup_v(char* file,
     //开始存放辅助向量
     sp -= 2;
     NEW_AUX_ENT(0, AT_NULL, 0);//end of vector
-    if (platform) {
+    if (platform)
+    {
         sp -= 2;
-        NEW_AUX_ENT(0, AT_PLATFORM, (unsigned long) platform);
+        NEW_AUX_ENT(0, AT_PLATFORM, (unsigned long)platform);
     }
-    sp -= 3*2;
+    sp -= 3 * 2;
     NEW_AUX_ENT(0, AT_HWCAP, ELF_HWCAP);
     NEW_AUX_ENT(1, AT_PAGESZ, 4096);// 4096
     NEW_AUX_ENT(2, AT_CLKTCK, 100);// 100
 
-    if (1) {//elf interp
-        sp -= 10*2;
+    if (1)
+    {//elf interp
+        sp -= 10 * 2;
 
         NEW_AUX_ENT(0, AT_PHDR, exec->elf_load_addr + exec->e_phoff);
-        NEW_AUX_ENT(1, AT_PHENT, sizeof (Elf32_Phdr));
+        NEW_AUX_ENT(1, AT_PHENT, sizeof(Elf32_Phdr));
         NEW_AUX_ENT(2, AT_PHNUM, exec->e_phnum);
-		//interp加载基址,如果就是/lib/ld-linux.so.2或静态链接可执行文件，则为0
+        //interp加载基址,如果就是/lib/ld-linux.so.2或静态链接可执行文件，则为0
         NEW_AUX_ENT(3, AT_BASE, exec->interp_bias);
         NEW_AUX_ENT(4, AT_FLAGS, 0);
         NEW_AUX_ENT(5, AT_ENTRY, exec->e_entry);//原程序入口
@@ -244,25 +263,29 @@ static unsigned ps_setup_v(char* file,
 #undef NEW_AUX_ENT
 
     esp = sp;
-    if (1) {
-        esp -= (env_buf_len+4); 
+    if (1)
+    {
+        esp -= (env_buf_len + 4);
         envpp = esp;
-        memcpy(envpp, tmp_array_env, env_buf_len+4);
+        memcpy(envpp, tmp_array_env, env_buf_len + 4);
     }
 
-    if (1) {
-        esp -= (argv_buf_len+4); 
+    if (1)
+    {
+        esp -= (argv_buf_len + 4);
         argvp = esp;
-        memcpy(argvp, tmp_array_argv, argv_buf_len+4);
+        memcpy(argvp, tmp_array_argv, argv_buf_len + 4);
     }
 
 
 
-    if (1) {
+    if (1)
+    {
         kfree(tmp_array_argv);
     }
 
-    if (1) {
+    if (1)
+    {
         kfree(tmp_array_env);
     }
 
@@ -289,40 +312,43 @@ int sys_execve(const char* file, char** argv, char** envp)
     char** s_envp = 0;
     mos_binfmt fmt = {0};
 
-    if (!file) {
+    if (!file)
+    {
         printk("fatal error: trying to execvp empty file!\n");
         return -1;
     }
 
     file_name = kmalloc(64);
-    ps_get_argc_envc(file,argv,envp,&argc,&envc);
-    s_argv = ps_save_argv(file,argv, argc);
+    ps_get_argc_envc(file, argv, envp, &argc, &envc);
+    s_argv = ps_save_argv(file, argv, argc);
     s_envp = ps_save_envp(envp, envc);
 
     strcpy(file_name, file);
 
-    #ifdef __VERBOS_SYSCALL__
+#ifdef __VERBOS_SYSCALL__
     klog("execve(%s, [");
-    for (i = 0; i < argc; i++) {
+    for (i = 0; i < argc; i++)
+    {
         klog_printf("%s ", argv[i]);
     }
     klog_printf("]\n");
-    #endif
+#endif
     cleanup();
     elf_map(file_name, &fmt);
     eip = fmt.interp_load_addr;
-    if (!eip) {
+    if (!eip)
+    {
         printk("fatal error: file %s not found!\n", file);
         asm("hlt");
     }
 
     do_mmap(esp_buttom, USER_STACK_PAGES*PAGE_SIZE, 0, 0, -1, 0);
-//  for (i = 0; i < USER_STACK_PAGES; i++) {
-//      mm_add_dynamic_map(esp_buttom+i*PAGE_SIZE, 0, PAGE_ENTRY_USER_DATA);
-//      memset(esp_buttom+i*PAGE_SIZE, 0, PAGE_SIZE);
-//  }
+    //  for (i = 0; i < USER_STACK_PAGES; i++) {
+    //      mm_add_dynamic_map(esp_buttom+i*PAGE_SIZE, 0, PAGE_ENTRY_USER_DATA);
+    //      memset(esp_buttom+i*PAGE_SIZE, 0, PAGE_SIZE);
+    //  }
 
-    esp_top = ps_setup_v(file_name, argc,s_argv,envc,s_envp,esp_top, &fmt);
+    esp_top = ps_setup_v(file_name, argc, s_argv, envc, s_envp, esp_top, &fmt);
     ps_free_v(s_argv, argc);
     ps_free_v(s_envp, envc);
     kfree(file_name);
@@ -338,7 +364,8 @@ static void run_if_exist(char* path)
     char *argv[2];
     argv[0] = path;
     argv[1] = 0;
-    if (fs_stat(path,&s) != -1) {
+    if (fs_stat(path, &s) != -1)
+    {
         sys_execve(path, argv, 0);
     }
 }

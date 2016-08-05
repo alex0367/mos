@@ -3,12 +3,12 @@
 
 int main(int argc, char** argv)
 {
-	char name[256] = {0};
+    char name[256] = {0};
 
-	getcwd(name, 256);
+    getcwd(name, 256);
 
-	printf("%s\n", name);
+    printf("%s\n", name);
 
-	return 1;
+    return 1;
 }
 
