@@ -5,7 +5,7 @@
 #include <dirent.h>
 #endif
 
-#include <fs/vfs.h>
+#include <vfs.h>
 
 #if defined WIN32 ||  MACOS
 static unsigned quota = 0;

@@ -1,10 +1,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <fileblock.h>
-#include <fs/ffs.h>
-#include <fs/ext2.h>
-#include <fs/namespace.h>
-#include <syscall//unistd.h>
+#include <ffs.h>
+#include <ext2.h>
+#include <namespace.h>
+#include </unistd.h>
 #include <osdep.h>
 
 static char img[256] = {0};

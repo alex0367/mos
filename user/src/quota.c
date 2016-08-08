@@ -1,4 +1,4 @@
-#include <lib/klib.h>
+#include <klib.h>
 #include <syscall.h>
 
 int main()
