@@ -1,7 +1,7 @@
 #include <syscall.h>
 #include <fs.h>
-#include <syscall/unistd.h>
-#include <lib/klib.h>
+#include <unistd.h>
+#include <klib.h>
 
 #define STR_NO_SUCH_FILE "No such file\n"
 #define STR_IS_DIRECTORY "Is a directory\n"

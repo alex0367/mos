@@ -1,5 +1,5 @@
 #include <syscall.h>
-#include <lib/klib.h>
+#include <klib.h>
 
 
 static TTY_COLOR fg_color;

@@ -1,5 +1,5 @@
 #include <syscall.h>
-#include <lib/klib.h>
+#include <klib.h>
 
 #define MIN_MEM 1
 #define MAX_MEM 4080

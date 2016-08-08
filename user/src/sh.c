@@ -1,7 +1,7 @@
 #include <syscall.h>
 #include <fs.h>
-#include <syscall/unistd.h>
-#include <lib/klib.h>
+#include <unistd.h>
+#include <klib.h>
 
 #define SH_PREFIX "sh$ "
 struct utsname machine;

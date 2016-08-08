@@ -1,5 +1,5 @@
 #include <syscall.h>
-#include <lib/klib.h>
+#include <klib.h>
 
 int main(int argc, char** argv)
 {
