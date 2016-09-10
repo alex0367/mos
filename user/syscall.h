@@ -2,46 +2,8 @@
 #define _SYSCALL_H_
 #include <syscall/unistd.h>
 #include <config.h>
+#include <lib/klib.h>
 
-#define SYSCALL0(no) \
-	__asm__("movl %0, %%eax" : : "i"(no));\
-	__asm__("int %0" : : "i"(SYSCALL_INT_NO));\
-
-#define SYSCALL1(no, arg0) \
-	__asm__("movl %0, %%ebx" : : "m"(arg0));\
-	SYSCALL0(no);
-
-#define SYSCALL2(no, arg0, arg1) \
-	__asm__("movl %0, %%ecx" : : "m"(arg1));\
-	SYSCALL1(no, arg0);
-
-#define SYSCALL3(no, arg0, arg1, arg2) \
-	__asm__("movl %0, %%edx" : : "m"(arg2));\
-	SYSCALL2(no, arg0, arg1);
-
-#define DEFINE_SYSCALL0(name) \
-	static inline int name() \
-	{ \
-		SYSCALL0(__NR_##name); \
-	}
-
-#define DEFINE_SYSCALL1(name, type0, arg0) \
-	static inline int name(type0 arg0)\
-	{ \
-		SYSCALL1(__NR_##name, arg0); \
-	}
-
-#define DEFINE_SYSCALL2(name, type0, arg0, type1, arg1) \
-	static inline int name(type0 arg0, type1 arg1) \
-	{ \
-		SYSCALL2(__NR_##name, arg0, arg1); \
-	}
-
-#define DEFINE_SYSCALL3(name, type0, arg0, type1, arg1, type2, arg2) \
-	static inline int name(type0 arg0, type1 arg1, type2 arg2) \
-	{ \
-		SYSCALL3(__NR_##name, arg0, arg1, arg2);\
-	}
 
 typedef void* DIR;
 struct dirent;
@@ -49,28 +11,43 @@ typedef unsigned long time_t;
 
 void tty_set_fg_color(unsigned color);
 void tty_set_bg_color(unsigned color);
+void tty_init();
 
-DEFINE_SYSCALL1(exit, unsigned, status);
-DEFINE_SYSCALL0(fork)
-DEFINE_SYSCALL3(read, unsigned, fd, const char*, buf, unsigned, len)
-DEFINE_SYSCALL3(write, unsigned, fd, const char*, buf, unsigned, len)
-DEFINE_SYSCALL1(open, const char*, path)
-DEFINE_SYSCALL1(close, unsigned, fd)
-DEFINE_SYSCALL3(waitpid, unsigned, pid, int*, status, int ,option);
-DEFINE_SYSCALL3(execve,const char*, path, char** const, argv, char** const, env)
-DEFINE_SYSCALL0(getpid);
-DEFINE_SYSCALL1(uname, struct utsname*, utname);
-DEFINE_SYSCALL0(sched_yield);
-DEFINE_SYSCALL2(stat, const char*, path, struct stat*, buf);
-DEFINE_SYSCALL1(opendir, const char*, path);
-DEFINE_SYSCALL1(closedir, DIR, dir);
-DEFINE_SYSCALL2(readdir, DIR, dir, struct dirent*, ent);
-DEFINE_SYSCALL1(brk, unsigned, addr);
-DEFINE_SYSCALL1(time, time_t*, t);
-DEFINE_SYSCALL2(getcwd, const char*, name, unsigned, len);
-DEFINE_SYSCALL1(chdir, const char*, path);
-DEFINE_SYSCALL3(ioctl, unsigned, fd, unsigned, cmd, void*, buf);
-DEFINE_SYSCALL2(creat, const char*, path, unsigned, mode);
-DEFINE_SYSCALL1(rmdir, const char*, path);
-DEFINE_SYSCALL2(mkdir, const char*, path, unsigned, mode);
+#define DECLEAR_SYSCALL0(name) \
+	int name();
+
+#define DECLEAR_SYSCALL1(name, type0, arg0) \
+	int name(type0 arg0);
+
+#define DECLEAR_SYSCALL2(name, type0, arg0, type1, arg1) \
+	int name(type0 arg0, type1 arg1);
+
+#define DECLEAR_SYSCALL3(name, type0, arg0, type1, arg1, type2, arg2) \
+	int name(type0 arg0, type1 arg1, type2 arg2);
+
+
+DECLEAR_SYSCALL1(exit, unsigned, status);
+DECLEAR_SYSCALL0(fork)
+DECLEAR_SYSCALL3(read, unsigned, fd, const char*, buf, unsigned, len)
+DECLEAR_SYSCALL3(write, unsigned, fd, const char*, buf, unsigned, len)
+DECLEAR_SYSCALL1(open, const char*, path)
+DECLEAR_SYSCALL1(close, unsigned, fd)
+DECLEAR_SYSCALL3(waitpid, unsigned, pid, int*, status, int ,option);
+DECLEAR_SYSCALL3(execve,const char*, path, char** const, argv, char** const, env)
+DECLEAR_SYSCALL0(getpid);
+DECLEAR_SYSCALL1(uname, struct utsname*, utname);
+DECLEAR_SYSCALL0(sched_yield);
+DECLEAR_SYSCALL2(stat, const char*, path, struct stat*, buf);
+DECLEAR_SYSCALL2(readdir, unsigned, dir, struct dirent*, ent);
+DECLEAR_SYSCALL1(brk, unsigned, addr);
+DECLEAR_SYSCALL1(time, time_t*, t);
+DECLEAR_SYSCALL2(getcwd, const char*, name, unsigned, len);
+DECLEAR_SYSCALL1(chdir, const char*, path);
+DECLEAR_SYSCALL3(ioctl, unsigned, fd, unsigned, cmd, void*, buf);
+DECLEAR_SYSCALL2(creat, const char*, path, unsigned, mode);
+DECLEAR_SYSCALL1(rmdir, const char*, path);
+DECLEAR_SYSCALL2(mkdir, const char*, path, unsigned, mode);
+DECLEAR_SYSCALL1(reboot, unsigned, cmd);
+DECLEAR_SYSCALL0(pause);
+DECLEAR_SYSCALL1(quota, struct krnquota*, q);
 #endif

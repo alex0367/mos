@@ -78,22 +78,27 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\fs\cache.c" />
+    <ClCompile Include="..\..\fs\ext2.c" />
     <ClCompile Include="..\..\fs\ffs.c" />
     <ClCompile Include="..\..\fs\mount.c" />
     <ClCompile Include="..\..\fs\namespace.c" />
     <ClCompile Include="..\..\fs\vfs.c" />
     <ClCompile Include="..\..\lib\list.c" />
+    <ClCompile Include="..\..\lib\rbtree.c" />
     <ClCompile Include="..\ffstool.c" />
     <ClCompile Include="..\fileblock.c" />
     <ClCompile Include="..\osdep.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\drivers\block.h" />
+    <ClInclude Include="..\..\fs\ext2.h" />
     <ClInclude Include="..\..\fs\ffs.h" />
     <ClInclude Include="..\..\fs\mount.h" />
     <ClInclude Include="..\..\fs\namespace.h" />
     <ClInclude Include="..\..\fs\vfs.h" />
     <ClInclude Include="..\..\lib\list.h" />
+    <ClInclude Include="..\..\lib\rbtree.h" />
     <ClInclude Include="..\fileblock.h" />
     <ClInclude Include="..\osdep.h" />
   </ItemGroup>

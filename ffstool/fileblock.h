@@ -1,8 +1,8 @@
 #ifndef FILEBLOCK_H
 #define FILEBLOCK_H
-#include <drivers/block.h>
+#include <block.h>
 
-block* create_fileblock();
+block* create_fileblock(char* img);
 
 void delete_fileblock(block* b);
 
