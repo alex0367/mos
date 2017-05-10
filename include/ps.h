@@ -3,7 +3,9 @@
 
 #include <list.h>
 #include <lock.h>
-#include <vfs.h>
+#include <fs.h>
+
+#define FORK_FLAG_VFORK 1
 /*
  * ----------------------------
  * offset	|31-16		15-0  |
@@ -157,45 +159,41 @@ typedef enum _ps_status
 typedef enum _ps_type
 {
     ps_kernel,
-    ps_user
+    ps_user,
+    ps_dsr
 }ps_type;
+
+#define MAX_PRIORITY 5
+
 
 typedef void (*process_fn)(void* param);
 
-#define MAX_FD 256
-
-typedef struct _fd_type
+typedef struct _task_frame
 {
-	union{
-		INODE	file;
-		DIR		dir;
-	};
-	unsigned file_off;
-	unsigned flag;
-	char* path;
-}fd_type;
-
-
-#define fd_flag_isdir 0x00000001
-#define fd_flag_readonly 0x00000002
-#define fd_flag_writonly 0x00000004
-#define fd_flag_rw		0x00000008
-#define fd_flag_create 0x00000010
-#define fd_flag_append 0x00000020
-#define fd_flag_closeexec 0x00000040
-#define fd_flag_used	0x80000000
+    unsigned short ds;
+    unsigned short ss;
+    unsigned short es;
+    unsigned short gs;
+    unsigned short fs;
+    unsigned short cs;
+    unsigned long edx;
+    unsigned long ecx;
+    unsigned long ebx;
+    unsigned long eax;
+    unsigned long ebp;
+    unsigned long eip;
+    unsigned long esp0; // kernel esp
+	unsigned long esp;  // kernel or user esp
+}task_frame;
 
 
 typedef struct _task_struct
 {
-	// tss_struct tss;
-	unsigned int esp0; // kernel esp
-	unsigned int esp; // kernel or user esp
-	unsigned int ebp;
-	unsigned int cr3;
+	task_frame tss;
+    unsigned long cr3;
     unsigned int psid;
     process_fn fn;
-	void* param;
+	void* command;
 	user_enviroment user;
 	int priority;
     // in schedule list
@@ -208,18 +206,21 @@ typedef struct _task_struct
     ps_type type;
     int remain_ticks;
     int is_switching;
-	fd_type* fds;
+    file_descriptor* fds;
     semaphore fd_lock;
 	unsigned exit_status;
 	unsigned parent;
 	unsigned group_id;
-	char cwd[64];
+	char *cwd;
+    unsigned fork_flag;
+    semaphore vfork_event;
+    unsigned umask;
 	unsigned int magic; // to avoid stack overflow
 
 }task_struct;
 
 #define KERNEL_TASK_SIZE 1 // 1 pages
-#define DEFAULT_TASK_TIME_SLICE 5
+#define DEFAULT_TASK_TIME_SLICE 10
 
 task_struct* CURRENT_TASK();
 
@@ -227,7 +228,7 @@ task_struct* CURRENT_TASK();
 void ps_init();
 
 
-unsigned ps_create(process_fn, void* param, int priority, ps_type type);
+unsigned ps_create(process_fn, int priority, ps_type type);
 
 void ps_kickoff();
 
@@ -237,7 +238,8 @@ void ps_update_tss(unsigned int esp0);
 
 
 // task functions
-void task_sched();
+void _task_sched(const char* func);
+#define task_sched() _task_sched(__func__)
 
 
 typedef void (*fpuser_map_callback)(void* aux, unsigned vir, unsigned phy);
@@ -256,15 +258,12 @@ task_struct* ps_find_process(unsigned psid);
 
 // if process that >= priority exist
 int ps_has_ready(int priority);
-
+typedef void (*ps_enum_callback)(task_struct* task);
+void ps_enum_all(ps_enum_callback callback);
 // syscall handler
 int sys_fork();
+int sys_vfork();
 int sys_exit(unsigned status);
 int sys_waitpid(unsigned pid, int* status, int options);
 char *sys_getcwd(char *buf, unsigned size);
-
-#ifdef TEST_PS
-void ps_mmm();
-#endif
-
 #endif

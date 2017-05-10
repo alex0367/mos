@@ -1,11 +1,7 @@
 #ifndef _BLOCK_H_
 #define _BLOCK_H_
-#ifdef WIN32
-#include <windows.h>
-#else
 #include <list.h>
-#endif
-
+#include <fs.h>
 /* Size of a block device sector in bytes.
    All IDE disks use this sector size, as do most USB and SCSI
    disks.  It's not worth it to try to cater to other sector

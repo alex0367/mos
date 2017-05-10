@@ -45,7 +45,7 @@
 
 #define HDD_CACHE_WRITE_POLICY HDD_CACHE_WRITE_BACK
 
-#define USER_STACK_PAGES 16
+#define USER_STACK_PAGES 128
 
 #define SYSCALL_INT_NO 0x80
 
@@ -54,20 +54,27 @@
 #define STDOUT_FILENO   1   /* Standard output.  */
 #define STDERR_FILENO   2   /* Standard error output.  */
 
-#define PIPE_BUF_LEN 2048
+#define PIPE_BUF_LEN (4096)
 
-#define USER_HEAP_BEGIN  0x30000000
+#define USER_HEAP_BEGIN  0x20000000
 // left one page (a hole) to protect stack overflow and heap overflow
-#define USER_HEAP_END	(KERNEL_OFFSET - (USER_STACK_PAGES-1)*PAGE_SIZE)
-//#define USER_HEAP_END	 0x600f0000
+#define USER_HEAP_END	(KERNEL_OFFSET - (USER_STACK_PAGES+1)*PAGE_SIZE)
 
 #define USER_ZONE_BEGIN 0x10000000
 #define USER_ZONE_END	(USER_HEAP_BEGIN - PAGE_SIZE)
 
 // supported resolution
-#define VGA_RESOLUTION_X 1024
+#define VGA_RESOLUTION_X 768
 #define VGA_RESOLUTION_Y 512
 #define VGA_COLOR_DEPTH  32
 
+#define MAX_PATH (4096)
+
+// FIXME:
+// every bit represent a psid
+// 32 pages can have 1 million process
+// way too much for this os...
+// but you can enlarge it anyway...
+#define PSID_MAP_SIZE 32
 
 #endif

@@ -1,6 +1,7 @@
 #ifndef _KLIB_H_
 #define _KLIB_H_
-
+#include <mm.h>
+#include <config.h>
 
 typedef enum _TTY_COLOR
 { 
@@ -76,10 +77,7 @@ void* malloc(unsigned int size);
 
 void free(void* buf);
 
-#ifdef __KERNEL__
-
-#include <mm.h>
-#include <config.h>
+/// logs
 
 void klib_init();
 
@@ -131,7 +129,6 @@ void shutdown();
 
 void printk(const char* str, ...);
 
-int tty_ioctl(tty_command* cmd);
 
 typedef struct _TEST_CONTROL
 {
@@ -141,26 +138,15 @@ typedef struct _TEST_CONTROL
     int test_mm;
     int test_fs_read;
     int test_fs_write;
-    int test_ffs;
     int test_ext2;
+	int test_mount;
+	int test_block;
+	int test_pci;
+	int test_nic;
+	int test_socket;
+	int verbos;
 }TEST_CONTROL;
 extern TEST_CONTROL TestControl;
-
-#else
-
-#include <syscall.h>
-
-#define PAGE_SIZE (4*1024)
-
-void libc_init();
-
-void libc_init();
-
-void libc_putchar(char c);
-
-void libc_print(char *str);
-
-#endif
 
 void memcpy(void* dst, void* src, unsigned len);
 
@@ -176,11 +162,15 @@ unsigned strlen(const char* str);
 
 char* strcpy(char* dst, const char* src);
 
+char* strncpy(char* dst, const char* src, int len);
+
 char* strstr(const char* src, const char* str);
 
 char* strrev(char *src);
 
 int strcmp(char* str, char* dst);
+
+int strncmp(char* s1, char* s2, int n);
 
 char* strcat(char* str, char* msg);
 
